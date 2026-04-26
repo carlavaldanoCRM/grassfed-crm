@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Grassfed Culture — Events CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#1A1510;--ink2:#3D3228;--ink3:#6B5C4E;
+  --parchment:#F8F4EF;--paper:#FDFAF7;--mist:#EDE8E1;--fog:#D9D2C8;
+  --gold:#C49A3C;--gold2:#E8C870;--gold3:#F5E4B0;
+  --moss:#2D4A28;--moss2:#4A7A42;--sage:#8FAF85;--sage2:#C8DFC4;
+  --ember:#B84020;--ember2:#D4603A;--ember3:#F0C4B0;
+  --slate:#2A3A4A;--slate2:#4A6A82;--sky:#C4D8E8;
+  --plum:#4A2848;--plum2:#7A4A78;--lavender:#D4C0D4;
+  --shadow:rgba(26,21,16,0.12);
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--parchment);color:var(--ink);font-size:13px;}
+.app{display:grid;grid-template-columns:200px 1fr;height:100vh;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--ink);display:flex;flex-direction:column;overflow-y:auto;border-right:1px solid rgba(255,255,255,0.06);}
+.brand{padding:20px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.brand-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;color:var(--gold2);line-height:1.25;letter-spacing:0.02em;}
+.brand-sub{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:rgba(196,154,60,0.5);margin-top:3px;}
+.sync-pill{display:flex;align-items:center;gap:5px;margin:10px 16px 0;padding:5px 8px;background:rgba(255,255,255,0.04);border-radius:6px;font-size:10px;color:rgba(255,255,255,0.4);}
+.sync-pip{width:5px;height:5px;border-radius:50%;background:var(--sage);flex-shrink:0;}
+.sync-pip.syncing{animation:blink 1s infinite;}
+.sync-pip.err{background:var(--ember2);}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+.nav-group{padding:12px 8px 4px;}
+.nav-group-label{font-size:8.5px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:0 8px;margin-bottom:3px;}
+.nav-btn{display:flex;align-items:center;gap:8px;width:100%;padding:7px 10px;border-radius:7px;border:none;background:none;color:rgba(255,255,255,0.55);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all 0.12s;text-align:left;}
+.nav-btn:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.85);}
+.nav-btn.active{background:rgba(196,154,60,0.15);color:var(--gold2);}
+.nav-btn .ico{font-size:13px;width:16px;text-align:center;flex-shrink:0;}
+.nav-btn .badge{margin-left:auto;background:var(--ember);color:white;font-size:9px;font-weight:500;padding:1px 5px;border-radius:8px;min-width:16px;text-align:center;}
+.nav-btn .count{margin-left:auto;font-size:10px;color:rgba(255,255,255,0.3);}
+.venue-dots{padding:10px 8px 16px;margin-top:auto;border-top:1px solid rgba(255,255,255,0.07);}
+.vd-label{font-size:8.5px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.25);padding:0 8px;margin-bottom:6px;}
+.vd-row{display:flex;align-items:center;gap:7px;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;color:rgba(255,255,255,0.45);transition:all 0.12s;}
+.vd-row:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.75);}
+.vd-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;overflow:hidden;}
+.topbar{background:var(--paper);border-bottom:1px solid var(--mist);padding:12px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--ink);flex:1;line-height:1;}
+.page-sub{font-size:11px;color:var(--ink3);margin-top:1px;}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all 0.12s;white-space:nowrap;}
+.btn-gold{background:var(--gold);color:white;}.btn-gold:hover{background:var(--gold2);color:var(--ink);}
+.btn-moss{background:var(--moss);color:white;}.btn-moss:hover{background:var(--moss2);}
+.btn-ghost{background:transparent;border:1px solid var(--fog);color:var(--ink2);}.btn-ghost:hover{background:var(--mist);}
+.btn-ember{background:var(--ember);color:white;}.btn-ember:hover{background:var(--ember2);}
+.btn-sm{padding:5px 10px;font-size:11px;}
+.content{flex:1;overflow-y:auto;padding:20px;}
+
+/* ── VIEWS ── */
+.view{display:none;}.view.active{display:block;}
+
+/* ── STATS ROW ── */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
+.kpi{background:var(--paper);border:1px solid var(--mist);border-radius:10px;padding:14px 16px;}
+.kpi-label{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px;}
+.kpi-value{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:var(--ink);line-height:1;}
+.kpi-sub{font-size:10px;color:var(--moss2);margin-top:3px;}
+.kpi.accent{background:var(--ink);border-color:var(--ink);}
+.kpi.accent .kpi-label{color:rgba(255,255,255,0.4);}
+.kpi.accent .kpi-value{color:var(--gold2);}
+.kpi.accent .kpi-sub{color:var(--sage);}
+
+/* ── EVENT TABLE ── */
+.table-wrap{background:var(--paper);border:1px solid var(--mist);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.table-header{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--mist);background:var(--parchment);}
+.table-title{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:400;color:var(--ink);}
+.table-meta{font-size:11px;color:var(--ink3);margin-left:4px;}
+.t-scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--parchment);}
+th{padding:8px 10px;text-align:left;font-size:9.5px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--mist);white-space:nowrap;}
+td{padding:9px 10px;font-size:12px;color:var(--ink2);border-bottom:1px solid var(--mist);vertical-align:middle;white-space:nowrap;}
+tr:last-child td{border-bottom:none;}
+tr.event-row{cursor:pointer;transition:background 0.1s;}
+tr.event-row:hover{background:var(--parchment);}
+.venue-chip{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500;}
+.status-chip{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:500;}
+.s-new{background:var(--gold3);color:#7A5A10;}
+.s-responded{background:var(--sky);color:var(--slate);}
+.s-confirmed{background:var(--sage2);color:var(--moss);}
+.s-completed{background:var(--fog);color:var(--ink3);}
+.s-lost{background:var(--ember3);color:var(--ember);}
+.s-menu{background:#D4E8C8;color:#2A4A1A;}
+.s-contract{background:#C8DCF0;color:#1A3050;}
+.s-deposit{background:#E8D4F0;color:#3A1A50;}
+.check-icon{color:var(--moss2);font-size:12px;}
+.x-icon{color:var(--fog);font-size:12px;}
+
+/* ── REVENUE DASHBOARD ── */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;}
+.dash-card{background:var(--paper);border:1px solid var(--mist);border-radius:12px;overflow:hidden;}
+.dash-card-header{padding:12px 16px;border-bottom:1px solid var(--mist);background:var(--parchment);font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:400;}
+.dash-card-body{padding:14px 16px;}
+.rev-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--mist);font-size:12px;}
+.rev-row:last-child{border-bottom:none;}
+.rev-venue{display:flex;align-items:center;gap:7px;font-weight:500;}
+.rev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.rev-amount{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:400;}
+.rev-amount.positive{color:var(--moss);}
+.coord-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--mist);font-size:12px;}
+.coord-row:last-child{border-bottom:none;}
+.coord-name{font-weight:500;color:var(--ink);}
+.coord-stats{display:flex;gap:14px;}
+.coord-stat{text-align:right;}
+.coord-stat-val{font-family:'Cormorant Garamond',serif;font-size:14px;}
+.coord-stat-label{font-size:9px;color:var(--ink3);text-transform:uppercase;letter-spacing:0.08em;}
+
+/* ── INBOX ── */
+.inbox-list{display:flex;flex-direction:column;gap:8px;}
+.inbox-card{background:var(--paper);border:1px solid var(--mist);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all 0.12s;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;}
+.inbox-card:hover{border-color:var(--gold);box-shadow:0 2px 16px var(--shadow);}
+.inbox-card.unprocessed{border-left:3px solid var(--gold);}
+.inbox-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;flex-shrink:0;}
+.inbox-from{font-size:13px;font-weight:500;color:var(--ink);}
+.inbox-subject{font-size:11px;color:var(--ink3);margin-top:1px;}
+.inbox-preview{font-size:11px;color:var(--ink3);opacity:0.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:400px;}
+.inbox-meta{text-align:right;flex-shrink:0;}
+.inbox-time{font-size:10px;color:var(--ink3);}
+.inbox-venue{font-size:10px;font-weight:500;margin-top:3px;}
+.new-tag{display:inline-block;background:var(--ember);color:white;font-size:8px;font-weight:700;letter-spacing:0.08em;padding:1px 5px;border-radius:4px;margin-left:6px;}
+.auto-tag{display:inline-block;background:var(--moss);color:white;font-size:8px;font-weight:700;letter-spacing:0.08em;padding:1px 5px;border-radius:4px;margin-left:6px;}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(26,21,16,0.6);z-index:100;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto;backdrop-filter:blur(2px);}
+.modal-bg.open{display:flex;}
+.modal{background:var(--paper);border-radius:16px;width:100%;max-width:780px;overflow:hidden;flex-shrink:0;box-shadow:0 24px 64px rgba(26,21,16,0.25);}
+.modal-head{padding:18px 22px 14px;border-bottom:1px solid var(--mist);display:flex;align-items:flex-start;gap:12px;background:var(--parchment);}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:400;flex:1;line-height:1;}
+.modal-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
+.modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--ink3);line-height:1;padding:2px 4px;}
+.modal-close:hover{color:var(--ink);}
+.modal-body{padding:18px 22px;max-height:72vh;overflow-y:auto;}
+.modal-foot{padding:14px 22px;border-top:1px solid var(--mist);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;background:var(--parchment);}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--mist);margin-bottom:14px;}
+.tab{padding:7px 13px;font-size:11px;font-weight:500;cursor:pointer;color:var(--ink3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.12s;border-radius:6px 6px 0 0;}
+.tab:hover{color:var(--ink);background:var(--parchment);}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);background:var(--parchment);}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-full{grid-column:1/-1;}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-label{font-size:9.5px;font-weight:500;letter-spacing:0.09em;text-transform:uppercase;color:var(--ink3);}
+.form-input,.form-select,.form-textarea{background:var(--parchment);border:1px solid var(--fog);border-radius:7px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--ink);outline:none;transition:border 0.12s;width:100%;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--gold);}
+.form-textarea{resize:vertical;min-height:70px;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.info-row{display:flex;flex-direction:column;gap:2px;}
+.info-label{font-size:9px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);}
+.info-val{font-size:12px;color:var(--ink);background:var(--parchment);padding:6px 9px;border-radius:6px;min-height:28px;}
+.section-sep{border:none;border-top:1px solid var(--mist);margin:12px 0;}
+.section-label{font-size:9.5px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;}
+.tracker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.tracker-field{display:flex;flex-direction:column;gap:3px;}
+.tracker-label{font-size:9px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink3);}
+.tracker-val{font-size:12px;color:var(--ink);background:var(--parchment);padding:6px 9px;border-radius:6px;}
+.checklist-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--mist);font-size:12px;color:var(--ink2);}
+.ck-box{width:15px;height:15px;border:1.5px solid var(--fog);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all 0.12s;}
+.ck-box.done{background:var(--moss);border-color:var(--moss);color:white;}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.menu-card{background:var(--parchment);border:1.5px solid var(--mist);border-radius:10px;padding:13px;cursor:pointer;transition:all 0.12s;}
+.menu-card:hover{border-color:var(--gold);}
+.menu-card.picked{border-color:var(--moss);background:#F0F5EE;}
+.menu-card-name{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:2px;}
+.menu-card-desc{font-size:10px;color:var(--ink3);}
+.menu-card-status{font-size:9.5px;margin-top:6px;}
+.email-draft-box{background:var(--parchment);border:1px solid var(--fog);border-radius:10px;padding:14px;}
+.edf-row{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--mist);}
+.edf-label{font-size:9px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:2px;}
+.edf-val{font-size:12px;color:var(--ink);}
+.edf-body{font-size:12px;color:var(--ink2);line-height:1.7;white-space:pre-wrap;}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--ink);color:var(--parchment);padding:10px 16px;border-radius:9px;font-size:12px;z-index:300;transform:translateY(60px);opacity:0;transition:all 0.25s;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+.empty-msg{text-align:center;padding:32px;font-size:12px;color:var(--ink3);opacity:0.6;}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;color:var(--ink);margin-bottom:12px;}
+.banner{display:none;background:var(--gold3);border:1px solid var(--gold);border-radius:9px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink2);}
+.banner.hidden{display:none;}
+.sop-card{background:var(--paper);border:1px solid var(--mist);border-radius:10px;padding:14px 16px;margin-bottom:10px;}
+.sop-step{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--mist);font-size:12px;color:var(--ink2);}
+.sop-step:last-child{border-bottom:none;}
+.sop-num{width:20px;height:20px;border-radius:50%;background:var(--moss);color:white;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.filter-btn{padding:5px 12px;border-radius:16px;border:1px solid var(--fog);background:var(--paper);font-size:11px;color:var(--ink2);cursor:pointer;transition:all 0.12s;}
+.filter-btn.active{background:var(--ink);color:var(--gold2);border-color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-name">Grassfed Culture<br>Hospitality</div>
+    <div class="brand-sub">Events CRM</div>
+  </div>
+  <div class="sync-pill">
+    <div class="sync-pip" id="syncPip"></div>
+    <span id="syncLabel">Syncing...</span>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Overview</div>
+    <button class="nav-btn active" onclick="showView('dashboard',this)"><span class="ico">◈</span> Dashboard</button>
+    <button class="nav-btn" onclick="showView('revenue',this)"><span class="ico">$</span> Revenue</button>
+    <button class="nav-btn" onclick="showView('pipeline',this)"><span class="ico">◧</span> Pipeline</button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Inquiries</div>
+    <button class="nav-btn" onclick="showView('inbox',this)"><span class="ico">✉</span> Inbox <span class="badge" id="inboxBadge">0</span></button>
+    <button class="nav-btn" onclick="showView('all',this)"><span class="ico">≡</span> All Events</button>
+    <button class="nav-btn" onclick="showView('archive',this)"><span class="ico">⊘</span> Archive</button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Venues</div>
+    <button class="nav-btn" onclick="showVenue('Krus Kitchen',this)"><span class="ico" style="color:#C49A3C;">●</span> Krüs Kitchen <span class="count" id="cnt-krus">0</span></button>
+    <button class="nav-btn" onclick="showVenue('Los Felix',this)"><span class="ico" style="color:#4A7A42;">●</span> Los Félix <span class="count" id="cnt-lf">0</span></button>
+    <button class="nav-btn" onclick="showVenue('ZeyZey',this)"><span class="ico" style="color:#7A4A78;">●</span> ZeyZey <span class="count" id="cnt-zz">0</span></button>
+    <button class="nav-btn" onclick="showVenue('Fum',this)"><span class="ico" style="color:#4A6A82;">●</span> Füm <span class="count" id="cnt-fum">0</span></button>
+    <button class="nav-btn" onclick="showVenue('Rabbit Ears',this)"><span class="ico" style="color:#B84020;">●</span> Rabbit Ears <span class="count" id="cnt-re">0</span></button>
+    <button class="nav-btn" onclick="showVenue('Tacos Maria',this)"><span class="ico" style="color:#C49A3C;">●</span> Tacos María <span class="count" id="cnt-tm">0</span></button>
+  </div>
+  <div class="nav-group" style="margin-top:auto;">
+    <button class="nav-btn" onclick="showView('sop',this)"><span class="ico">✓</span> SOPs</button>
+    <button class="nav-btn" onclick="showView('settings',this)"><span class="ico">⚙</span> Settings</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div><div class="page-title" id="pageTitle">Dashboard</div><div class="page-sub" id="pageSub">All venues · Auto-syncing</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="syncNow()">↻ Sync</button>
+    <button class="btn btn-moss btn-sm" onclick="openNew()">+ New Event</button>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="view active" id="view-dashboard">
+      <div class="kpi-row">
+        <div class="kpi accent"><div class="kpi-label">New Inquiries</div><div class="kpi-value" id="kpi-new">0</div><div class="kpi-sub">awaiting action</div></div>
+        <div class="kpi"><div class="kpi-label">Active Events</div><div class="kpi-value" id="kpi-active">0</div><div class="kpi-sub">in pipeline</div></div>
+        <div class="kpi"><div class="kpi-label">Confirmed</div><div class="kpi-value" id="kpi-confirmed">0</div><div class="kpi-sub">deposit received</div></div>
+        <div class="kpi"><div class="kpi-label">F&B Revenue MTD</div><div class="kpi-value" id="kpi-rev">$0</div><div class="kpi-sub">completed events</div></div>
+        <div class="kpi"><div class="kpi-label">Completed</div><div class="kpi-value" id="kpi-completed">0</div><div class="kpi-sub">this month</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div>
+          <div class="section-title">📬 New Inquiries</div>
+          <div id="dash-new"></div>
+        </div>
+        <div>
+          <div class="section-title">📅 Upcoming Confirmed</div>
+          <div id="dash-upcoming"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVENUE -->
+    <div class="view" id="view-revenue">
+      <div class="dash-grid">
+        <div class="dash-card">
+          <div class="dash-card-header">Monthly F&B Revenue by Venue</div>
+          <div class="dash-card-body" id="rev-by-venue"></div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-header">Coordinator Workload</div>
+          <div class="dash-card-body" id="coord-workload"></div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header"><span class="table-title">Revenue Detail</span><span class="table-meta">— Completed events</span></div>
+        <div class="t-scroll"><table><thead><tr><th>Date</th><th>Venue</th><th>Client</th><th>Event</th><th>Pax</th><th>F&B Rev</th><th>Lead</th></tr></thead><tbody id="rev-table"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- PIPELINE -->
+    <div class="view" id="view-pipeline">
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;overflow-x:auto;" id="pipeline-cols"></div>
+    </div>
+
+    <!-- INBOX -->
+    <div class="view" id="view-inbox">
+      <div class="banner hidden" id="new-banner">
+        <span style="font-size:16px;">🔔</span>
+        <span id="new-banner-text"></span>
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="document.getElementById('new-banner').classList.add('hidden')">Dismiss</button>
+      </div>
+      <div class="inbox-list" id="inbox-list"></div>
+    </div>
+
+    <!-- ALL EVENTS -->
+    <div class="view" id="view-all">
+      <div class="filter-row" id="status-filters"></div>
+      <div class="table-wrap">
+        <div class="table-header"><span class="table-title">All Events</span><span class="table-meta" id="all-count"></span></div>
+        <div class="t-scroll"><table><thead><tr><th>#</th><th>Date</th><th>Venue</th><th>Type</th><th>Event</th><th>Client</th><th>Pax</th><th>Status</th><th>Lead</th><th>Min Spend</th><th>F&B Rev</th><th>Prop</th><th>Cal</th><th>Dep</th></tr></thead><tbody id="all-table"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- VENUE VIEW -->
+    <div class="view" id="view-venue">
+      <div class="filter-row" id="venue-filters"></div>
+      <div class="table-wrap">
+        <div class="table-header"><span class="table-title" id="venue-table-title"></span></div>
+        <div class="t-scroll"><table><thead><tr><th>#</th><th>Date</th><th>Type</th><th>Event</th><th>Client</th><th>Pax</th><th>Status</th><th>Lead</th><th>Min Spend</th><th>F&B Rev</th><th>Prop</th><th>Cal</th><th>Dep</th></tr></thead><tbody id="venue-table"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ARCHIVE -->
+    <div class="view" id="view-archive">
+      <div class="table-wrap">
+        <div class="table-header"><span class="table-title">Archive — Lost / No Response</span></div>
+        <div class="t-scroll"><table><thead><tr><th>Date</th><th>Venue</th><th>Client</th><th>Event</th><th>Pax</th><th>Reason</th></tr></thead><tbody id="archive-table"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- SOP -->
+    <div class="view" id="view-sop">
+      <div class="section-title">Standard Operating Procedures</div>
+      <div id="sop-content"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="view" id="view-settings">
+      <div class="section-title">Settings</div>
+      <div style="background:var(--paper);border:1px solid var(--mist);border-radius:12px;padding:18px;max-width:480px;">
+        <div class="form-group" style="margin-bottom:12px;"><div class="form-label">Google Sheet CSV URL</div><input class="form-input" id="s-csv" value="https://docs.google.com/spreadsheets/d/e/2PACX-1vT0rLJuz-BgBaF-_30hoeyDHhu9YMr9dBA3r6X7hO7LAeoJeYz_g5w4iFJtir6V3Jib0TlshuGwoV3o/pub?gid=1532111836&single=true&output=csv"/></div>
+        <div class="form-group" style="margin-bottom:12px;"><div class="form-label">Events Email</div><input class="form-input" id="s-email" value="events@grassfedculture.com"/></div>
+        <div class="form-group" style="margin-bottom:12px;"><div class="form-label">Sync Interval</div><select class="form-select" id="s-interval"><option value="30">30 seconds</option><option value="60" selected>60 seconds</option><option value="120">2 minutes</option></select></div>
+        <div style="display:flex;gap:8px;margin-top:14px;">
+          <button class="btn btn-moss" onclick="saveSettings()">Save</button>
+          <button class="btn btn-ghost" onclick="syncNow()">↻ Sync Now</button>
+        </div>
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--mist);">
+          <div class="form-label" style="margin-bottom:8px;color:var(--ember);">Danger Zone</div>
+          <button class="btn btn-ghost btn-sm" style="color:var(--ember);border-color:var(--ember);" onclick="clearAll()">🗑 Delete All Events</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+
+<!-- NEW / EDIT EVENT MODAL -->
+<div class="modal-bg" id="eventModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div><div class="modal-title" id="modal-title">New Event</div><div class="modal-sub" id="modal-sub">Fill in details</div></div>
+      <button class="modal-close" onclick="closeModal('eventModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('einfo')">Info</div>
+        <div class="tab" onclick="switchTab('etracker')">Tracker</div>
+        <div class="tab" onclick="switchTab('emenu')">Send Menu</div>
+        <div class="tab" onclick="switchTab('eemail')">Email Draft</div>
+        <div class="tab" onclick="switchTab('echecklist')">Checklist</div>
+      </div>
+      <div class="tab-panel active" id="tab-einfo">
+        <div class="form-grid">
+          <div class="form-group"><div class="form-label">Client Name</div><input class="form-input" id="e-client" placeholder="Full name"/></div>
+          <div class="form-group"><div class="form-label">Client Email</div><input class="form-input" id="e-email" type="email"/></div>
+          <div class="form-group"><div class="form-label">Phone</div><input class="form-input" id="e-phone" placeholder="(305) 555-0000"/></div>
+          <div class="form-group"><div class="form-label">Event Name</div><input class="form-input" id="e-eventname" placeholder="e.g. Birthday Dinner"/></div>
+          <div class="form-group"><div class="form-label">Type</div>
+            <select class="form-select" id="e-type">
+              <option>Prix Fixe</option><option>Buyout</option><option>Birthday Party</option><option>Corporate Event</option><option>Wedding Reception</option><option>Private Dinner</option><option>Cocktail Party</option><option>Brand Activation</option><option>Brunch Event</option><option>General Inquiry</option>
+            </select>
+          </div>
+          <div class="form-group"><div class="form-label">Venue</div>
+            <select class="form-select" id="e-venue">
+              <option>Los Felix</option><option>Krus Kitchen</option><option>Fum</option><option>Rabbit Ears</option><option>ZeyZey</option><option>Tacos Maria</option>
+            </select>
+          </div>
+          <div class="form-group"><div class="form-label">Status</div>
+            <select class="form-select" id="e-status">
+              <option>New Inquiry</option><option>Responded</option><option>Menu Sent</option><option>Contract Signed</option><option>Deposit Received</option><option>Confirmed</option><option>Completed</option><option>Lost</option><option>No Response</option>
+            </select>
+          </div>
+          <div class="form-group"><div class="form-label">Lead / Coordinator</div>
+            <select class="form-select" id="e-lead">
+              <option value="">—</option><option>Katiana</option><option>Ellie</option><option>Michael</option><option>Carla</option>
+            </select>
+          </div>
+          <div class="form-group"><div class="form-label">Event Date</div><input class="form-input" id="e-date" type="date"/></div>
+          <div class="form-group"><div class="form-label">Start Time</div><input class="form-input" id="e-time" type="time"/></div>
+          <div class="form-group"><div class="form-label">End Time</div><input class="form-input" id="e-endtime" type="time"/></div>
+          <div class="form-group"><div class="form-label">Guest Count (Pax)</div><input class="form-input" id="e-pax" type="number" placeholder="0"/></div>
+          <div class="form-group form-full"><div class="form-label">Notes / Special Requests</div><textarea class="form-textarea" id="e-notes"></textarea></div>
+        </div>
+      </div>
+      <div class="tab-panel" id="tab-etracker">
+        <div class="tracker-grid">
+          <div class="tracker-field"><div class="tracker-label">Min Spend</div><input class="form-input" id="t-minspend" type="number" placeholder="0.00"/></div>
+          <div class="tracker-field"><div class="tracker-label">Deposit Due</div><input class="form-input" id="t-depduedate" type="date"/></div>
+          <div class="tracker-field"><div class="tracker-label">F&B Revenue</div><input class="form-input" id="t-fbrev" type="number" placeholder="0.00"/></div>
+          <div class="tracker-field"><div class="tracker-label">LF Split</div><input class="form-input" id="t-lfsplit" type="number" placeholder="0.00"/></div>
+          <div class="tracker-field"><div class="tracker-label">Krüs Split</div><input class="form-input" id="t-krussplit" type="number" placeholder="0.00"/></div>
+          <div class="tracker-field"><div class="tracker-label">OT Hours</div><input class="form-input" id="t-ot" type="number" placeholder="0"/></div>
+        </div>
+        <div style="margin-top:14px;">
+          <div class="section-label">Checklist Items</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;"><input type="checkbox" id="t-prop"/><span>Proposal Sent</span></label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;"><input type="checkbox" id="t-cal"/><span>Calendar Blocked</span></label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;"><input type="checkbox" id="t-dep"/><span>Deposit Received</span></label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;"><input type="checkbox" id="t-menu"/><span>Menu Sent</span></label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:12px;cursor:pointer;"><input type="checkbox" id="t-ros"/><span>ROS Ready</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="tab-panel" id="tab-emenu"><div id="menu-tab-content"></div></div>
+      <div class="tab-panel" id="tab-eemail"><div id="email-tab-content"></div></div>
+      <div class="tab-panel" id="tab-echecklist"><div id="checklist-tab-content"></div></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" style="color:var(--ember);border-color:var(--ember);margin-right:auto;" onclick="deleteEvent()">🗑 Delete</button>
+      <button class="btn btn-ghost" onclick="closeModal('eventModal')">Close</button>
+      <button class="btn btn-ghost btn-sm" onclick="archiveEvent()">Archive</button>
+      <button class="btn btn-gold" onclick="saveEvent()">Save Event</button>
+      <button class="btn btn-moss" onclick="openGmail()">📧 Gmail</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+var CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT0rLJuz-BgBaF-_30hoeyDHhu9YMr9dBA3r6X7hO7LAeoJeYz_g5w4iFJtir6V3Jib0TlshuGwoV3o/pub?gid=1532111836&single=true&output=csv";
+var SYNC_MS = 60000;
+var syncTimer = null;
+
+// ── VENUE CONFIG ─────────────────────────────────────────────────────────────
+var VENUES = {
+  "Krus Kitchen": { color:"#C49A3C", label:"Krüs Kitchen" },
+  "Los Felix":    { color:"#4A7A42", label:"Los Félix" },
+  "ZeyZey":       { color:"#7A4A78", label:"ZeyZey" },
+  "Fum":          { color:"#4A6A82", label:"Füm" },
+  "Rabbit Ears":  { color:"#B84020", label:"Rabbit Ears" },
+  "Tacos Maria":  { color:"#C49A3C", label:"Tacos María" },
+};
+
+var COORDINATORS = ["Katiana","Ellie","Michael","Carla"];
+
+var STATUSES = ["New Inquiry","Responded","Menu Sent","Contract Signed","Deposit Received","Confirmed","Completed","Lost","No Response"];
+var PIPELINE_STAGES = ["New Inquiry","Responded","Menu Sent","Contract Signed","Deposit Received","Confirmed","Completed"];
+var STAGE_COLORS = {"New Inquiry":"#C49A3C","Responded":"#4A6A82","Menu Sent":"#4A7A42","Contract Signed":"#7A4A78","Deposit Received":"#B84020","Confirmed":"#2D4A28","Completed":"#6B5C4E"};
+
+// ── PDF MENUS ─────────────────────────────────────────────────────────────────
+var PDF_MENUS = {
+  "Los Felix":   [{ label:"Los Félix — Large Party Brunch", file:"Los_Felix_Large_Party_Reservations_Brunch.pdf", desc:"4-Course $60 · 5-Course $75/guest", ok:true, meal:"brunch" },
+                  { label:"Los Félix — Large Party Dinner", file:"Los_Felix_Large_Party_Reservations_Dinner.pdf", desc:"4-Course $95 · 5-Course $110/guest", ok:true, meal:"dinner" },
+                  { label:"Los Félix — Private Buyout",     file:"Los_Felix_Private_Events.pdf", desc:"Partial from $5,500 · Full from $10,000", ok:true, meal:"buyout" }],
+  "Krus Kitchen":[{ label:"Krüs Kitchen — Large Party Brunch", file:"Krus_Large_Party_Reservations_Brunch.pdf", desc:"4-Course $60 · 5-Course $75/guest", ok:true, meal:"brunch" },
+                  { label:"Krüs Kitchen — Large Party Dinner", file:"Krus_Large_Party_Reservations_Dinner.pdf", desc:"4-Course $95 · 5-Course $110/guest", ok:false, meal:"dinner" },
+                  { label:"Krüs Kitchen — Private Buyout",     file:"Krus_Private_Events.pdf", desc:"Full Buyout $3,500–$6,500", ok:false, meal:"buyout" }],
+  "Fum":         [{ label:"Füm — Large Party Dinner",  file:"FUM_Large_Party_Reservations.pdf", desc:"$125/guest · 5 courses", ok:true, meal:"dinner" },
+                  { label:"Füm — Private Events Buyout", file:"FUM_Private_Events.pdf", desc:"$12,500 · Up to 30 guests", ok:true, meal:"buyout" }],
+};
+
+var SOP_STEPS = [
+  {n:1,title:"Inquiry Received",desc:"Inquiry auto-imported from Gmail → appears in CRM. Review client details, venue, and email body.",time:"Automatic"},
+  {n:2,title:"Respond",desc:"Open inquiry → Go to Email Draft tab → click Open in Gmail → respond with correct menu PDF.",time:"Within 24hrs"},
+  {n:3,title:"Menu Sent",desc:"Update status to 'Menu Sent'. Follow up within 48hrs if no reply.",time:"Immediately"},
+  {n:4,title:"Confirm Package",desc:"Client confirms package → send contract via DocuSign → collect 50% deposit.",time:"Upon reply"},
+  {n:5,title:"Event Confirmed",desc:"Deposit received → block calendar → assign Lead/Coordinator → create event brief.",time:"Same day"},
+  {n:6,title:"Pre-Event",desc:"Confirm final menu & guest count (7 days prior) → collect balance → staff brief.",time:"7 days prior"},
+  {n:7,title:"Event Day",desc:"Setup walkthrough 2hrs before → brief staff → greet client → post-event debrief.",time:"Day of event"},
+];
+
+var CHECKLIST_ITEMS = [
+  "Client contact saved","Venue availability confirmed","Responded to inquiry",
+  "Menu PDF sent","Package confirmed by client","Contract sent","Contract signed",
+  "Deposit invoice sent (50%)","Deposit received","Event on master calendar",
+  "Lead coordinator assigned","Final menu confirmed (7 days prior)",
+  "Final guest count confirmed","Balance collected","Staff briefed","ROS completed",
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+var SEED_DATA = [{"id": 1000, "client": "Linda Howell", "email": "", "phone": "", "eventName": "Rehearsal Dinner", "type": "Buyout", "venue": "Los Felix", "status": "Responded", "lead": "", "date": "5-Mar-2027", "time": "", "endTime": "", "pax": 40, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1001, "client": "Ali Caplan", "email": "", "phone": "", "eventName": "Wedding Reception", "type": "Buyout", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "24-Oct-2026", "time": "", "endTime": "", "pax": 50, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1002, "client": "Gina Copeland", "email": "", "phone": "", "eventName": "Dinner", "type": "Prix Fixe", "venue": "Los Felix", "status": "Lost", "lead": "", "date": "23-Sep-2026", "time": "", "endTime": "", "pax": 16, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1003, "client": "Gina Copeland", "email": "", "phone": "", "eventName": "Buyout Dinner", "type": "Buyout", "venue": "Fum", "status": "Lost", "lead": "Katiana", "date": "23-Sep-2026", "time": "", "endTime": "", "pax": 16, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1004, "client": "Brady Stevens", "email": "", "phone": "", "eventName": "Large Party", "type": "Partial", "venue": "Rabbit Ears", "status": "Lost", "lead": "Katiana", "date": "17-Jul-2026", "time": "", "endTime": "", "pax": 20, "notes": "Guest may want to wait for RE to open", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": true}, {"id": 1005, "client": "Jewell Hill", "email": "", "phone": "", "eventName": "Birthday Dinner", "type": "Prix Fixe", "venue": "Fum", "status": "Responded", "lead": "Katiana", "date": "12-Jul-2026", "time": "", "endTime": "", "pax": 12, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1006, "client": "Sofia Sarrubi", "email": "", "phone": "", "eventName": "Buisness Event", "type": "Buyout", "venue": "Fum", "status": "Responded", "lead": "Katiana", "date": "17-Jun-2026", "time": "", "endTime": "", "pax": 28, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": true, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1007, "client": "Lara Pessoa", "email": "", "phone": "", "eventName": "Reception", "type": "Catering", "venue": "Off Site", "status": "Responded", "lead": "Ellie", "date": "11-Jun-2026", "time": "", "endTime": "", "pax": 40, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 5415.6, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1008, "client": "Ilona Foni", "email": "", "phone": "", "eventName": "High Tea", "type": "Catering", "venue": "Off Site", "status": "Responded", "lead": "Ellie", "date": "10-Jun-2026", "time": "", "endTime": "", "pax": 30, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1009, "client": "Megan McElgunn", "email": "", "phone": "", "eventName": "Bridal Shower", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "29-May-2026", "time": "", "endTime": "", "pax": 0, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1010, "client": "Zoe Salaun", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Prix Fixe", "venue": "Los Felix", "status": "Responded", "lead": "", "date": "22-May-2026", "time": "", "endTime": "", "pax": 18, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1011, "client": "Olimpia Hammett", "email": "", "phone": "", "eventName": "Buisness Event", "type": "Partial", "venue": "Fum", "status": "Responded", "lead": "Michael", "date": "21-May-2026", "time": "", "endTime": "", "pax": 25, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1012, "client": "Lara Pessoa", "email": "", "phone": "", "eventName": "Reception", "type": "Catering", "venue": "Off Site", "status": "Responded", "lead": "", "date": "20-May-2026", "time": "", "endTime": "", "pax": 30, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1013, "client": "Antonio Santamaria", "email": "", "phone": "", "eventName": "Graduation", "type": "Buyout", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "16-May-2026", "time": "", "endTime": "", "pax": 30, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1014, "client": "Nick Baggarley", "email": "", "phone": "", "eventName": "Personal", "type": "Prix Fixe", "venue": "Fum", "status": "Confirmed", "lead": "Michael", "date": "15-May-2026", "time": "", "endTime": "", "pax": 10, "notes": "Interested in Rabbit Ears", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": true, "depPaid": true, "menuSent": true, "rosReady": false}, {"id": 1015, "client": "Tori Kerher", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "13-May-2026", "time": "", "endTime": "", "pax": 15, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1016, "client": "Nina Zhou", "email": "", "phone": "", "eventName": "Grad Dinner", "type": "Prix Fixe", "venue": "Los Felix", "status": "Confirmed", "lead": "", "date": "12-May-2026", "time": "", "endTime": "", "pax": 10, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1017, "client": "Olivia Mihulka", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "9-May-2026", "time": "", "endTime": "", "pax": 9, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1018, "client": "Tiffany Taylor", "email": "", "phone": "", "eventName": "46th Birthday/ Grad dinner", "type": "Prix Fixe", "venue": "Fum", "status": "Responded", "lead": "Michael", "date": "9-May-2026", "time": "", "endTime": "", "pax": 15, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1019, "client": "Jessica Jordan", "email": "", "phone": "", "eventName": "Wedding Welcome Drinks", "type": "Buyout", "venue": "Rabbit Ears", "status": "Confirmed", "lead": "Michael", "date": "7-May-2026", "time": "", "endTime": "", "pax": 50, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": true, "depPaid": true, "menuSent": true, "rosReady": false}, {"id": 1020, "client": "Renita Murray", "email": "", "phone": "", "eventName": "Emory Team", "type": "Minimum Spend", "venue": "Fum", "status": "Responded", "lead": "Michael", "date": "7-May-2026", "time": "", "endTime": "", "pax": 10, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": true, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1021, "client": "Cecile Baudry", "email": "", "phone": "", "eventName": "Buisness Event", "type": "Buyout", "venue": "Fum", "status": "Responded", "lead": "Michael", "date": "5-May-2026", "time": "", "endTime": "", "pax": 25, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1022, "client": "Sofia Chamat", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Prix Fixe", "venue": "Los Felix", "status": "Responded", "lead": "", "date": "3-May-2026", "time": "", "endTime": "", "pax": 9, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1023, "client": "Robyn Wallace", "email": "", "phone": "", "eventName": "Husband's birthday", "type": "Prix Fixe", "venue": "Fum", "status": "Responded", "lead": "Michael", "date": "2-May-2026", "time": "", "endTime": "", "pax": 16, "notes": "ATL Mayor will be a guest; Align with Amber on what she has been told abt Rabbit Ears", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1024, "client": "Michael Osborn", "email": "", "phone": "", "eventName": "Wife's 40th Birthday", "type": "Prix Fixe", "venue": "Fum", "status": "Confirmed", "lead": "Michael", "date": "2-May-2026", "time": "", "endTime": "", "pax": 12, "notes": "Wanted to know when RE is opening", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": true, "depPaid": true, "menuSent": true, "rosReady": false}, {"id": 1025, "client": "Amber Cruz", "email": "", "phone": "", "eventName": "Brunch", "type": "Buyout", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "2-May-2026", "time": "", "endTime": "", "pax": 30, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1026, "client": "Claudia Anderson", "email": "", "phone": "", "eventName": "Lunch", "type": "Buyout", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "1-May-2026", "time": "", "endTime": "", "pax": 25, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1027, "client": "Lara Pessoa", "email": "", "phone": "", "eventName": "Birthday / Work Anniv", "type": "Catering", "venue": "Off Site", "status": "Lost", "lead": "Ellie", "date": "30-Apr-2026", "time": "", "endTime": "", "pax": 50, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 3700.0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1028, "client": "Serge Permyakoff", "email": "", "phone": "", "eventName": "Reception", "type": "Catering", "venue": "Off Site", "status": "Lost", "lead": "Ellie", "date": "30-Apr-2026", "time": "", "endTime": "", "pax": 16, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1029, "client": "Maddie Savoie", "email": "", "phone": "", "eventName": "Burger King Fam Dinner", "type": "Prix Fixe", "venue": "Los Felix", "status": "Responded", "lead": "", "date": "29-Apr-2026", "time": "", "endTime": "", "pax": 10, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1030, "client": "Nia Barbee", "email": "", "phone": "", "eventName": "Birthday Dinner", "type": "Prix Fixe", "venue": "Fum", "status": "Confirmed", "lead": "", "date": "29-Apr-2026", "time": "", "endTime": "", "pax": 12, "notes": "No deposit. Min spend ??", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": true, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1031, "client": "Lauren Kwasniewski", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Confirmed", "lead": "Katiana", "date": "28-Apr-2026", "time": "", "endTime": "", "pax": 10, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1032, "client": "Matt Jackson", "email": "", "phone": "", "eventName": "Graduation Reunion", "type": "Minimum Spend", "venue": "Fum", "status": "Confirmed", "lead": "Michael", "date": "25-Apr-2026", "time": "", "endTime": "", "pax": 18, "notes": "No deposits: Min spend day of", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": true, "depPaid": true, "menuSent": false, "rosReady": false}, {"id": 1033, "client": "Ryan Sugrue", "email": "", "phone": "", "eventName": "Buyout RE", "type": "Buyout", "venue": "Rabbit Ears", "status": "Confirmed", "lead": "Katiana", "date": "24-Apr-2026", "time": "", "endTime": "", "pax": 50, "notes": "powerpoint, music, bev as grab and go.", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": true, "depPaid": true, "menuSent": false, "rosReady": false}, {"id": 1034, "client": "Jake Levine", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Minimum Spend", "venue": "Fum", "status": "Lost", "lead": "Michael", "date": "23-Apr-2026", "time": "", "endTime": "", "pax": 15, "notes": "same day cancellation", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": true, "depPaid": true, "menuSent": false, "rosReady": false}, {"id": 1035, "client": "Robert Boylan", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "21-Apr-2026", "time": "", "endTime": "", "pax": 15, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1036, "client": "Chiara Pucci", "email": "", "phone": "", "eventName": "Wedding After Party", "type": "Buyout", "venue": "Los Felix", "status": "Completed", "lead": "", "date": "19-Apr-2026", "time": "", "endTime": "", "pax": 40, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1037, "client": "Stephanie Steen", "email": "", "phone": "", "eventName": "BEO Brunch", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "18-Apr-2026", "time": "", "endTime": "", "pax": 13, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 975.0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1038, "client": "Sara Berliner", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Buyout", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "18-Apr-2026", "time": "", "endTime": "", "pax": 16, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 1200.0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1039, "client": "Sara Berliner", "email": "", "phone": "", "eventName": "Birthday Dinner", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "18-Apr-2026", "time": "", "endTime": "", "pax": 14, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1040, "client": "Benjamin Baller", "email": "", "phone": "", "eventName": "Business Dinner", "type": "Prix Fixe", "venue": "Los Felix", "status": "Responded", "lead": "", "date": "17-Apr-2026", "time": "", "endTime": "", "pax": 20, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1041, "client": "Daisha Jimenez", "email": "", "phone": "", "eventName": "Buyout Dinner", "type": "Buyout", "venue": "Fum", "status": "Responded", "lead": "", "date": "16-Apr-2026", "time": "", "endTime": "", "pax": 25, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1042, "client": "Grant Carter", "email": "", "phone": "", "eventName": "Client app Dinner", "type": "Prix Fixe", "venue": "Fum", "status": "Responded", "lead": "", "date": "16-Apr-2026", "time": "", "endTime": "", "pax": 25, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1043, "client": "Carolina Ch\u00e1vez Ben\u00edtez", "email": "", "phone": "", "eventName": "Fundraiser", "type": "Partial", "venue": "ZeyZey", "status": "Responded", "lead": "", "date": "11-Apr-2026", "time": "", "endTime": "", "pax": 150, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1044, "client": "Alejandro Pineda", "email": "", "phone": "", "eventName": "Buyout", "type": "Buyout", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "7-Apr-2026", "time": "", "endTime": "", "pax": 25, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1045, "client": "Jessica Goldstein", "email": "", "phone": "", "eventName": "Screening buyout", "type": "Buyout", "venue": "ZeyZey", "status": "Responded", "lead": "", "date": "6-Apr-2026", "time": "", "endTime": "", "pax": 125, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1046, "client": "Shelley Gaynes", "email": "", "phone": "", "eventName": "Birthday Dinner", "type": "Prix Fixe", "venue": "Fum", "status": "Responded", "lead": "", "date": "4-Apr-2026", "time": "", "endTime": "", "pax": 14, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1047, "client": "Laura Treadway", "email": "", "phone": "", "eventName": "Friends Gathering", "type": "Prix Fixe", "venue": "Los Felix", "status": "Responded", "lead": "", "date": "2-Apr-2026", "time": "", "endTime": "", "pax": 9, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1048, "client": "Kurtis Davis", "email": "", "phone": "", "eventName": "Birthday Dinner", "type": "Prix Fixe", "venue": "Fum", "status": "Responded", "lead": "", "date": "28-Mar-2026", "time": "", "endTime": "", "pax": 12, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1049, "client": "Julianda Marseille", "email": "", "phone": "", "eventName": "Buyout", "type": "Buyout", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "26-Mar-2026", "time": "", "endTime": "", "pax": 20, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1050, "client": "Mallori Morris", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Prix Fixe", "venue": "Fum", "status": "Responded", "lead": "", "date": "26-Mar-2026", "time": "", "endTime": "", "pax": 14, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1051, "client": "Jay Raje", "email": "", "phone": "", "eventName": "Dinner", "type": "Buyout", "venue": "Los Felix", "status": "Responded", "lead": "", "date": "24-Mar-2026", "time": "", "endTime": "", "pax": 0, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1052, "client": "Stephen Halkos", "email": "", "phone": "", "eventName": "Birthday Dinner", "type": "Prix Fixe", "venue": "Fum", "status": "Responded", "lead": "", "date": "21-Mar-2026", "time": "", "endTime": "", "pax": 15, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1053, "client": "Nicolas Aguilar", "email": "", "phone": "", "eventName": "Rehearsal Dinner", "type": "Buyout", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "20-Mar-2026", "time": "", "endTime": "", "pax": 30, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1054, "client": "Katherine Hall", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "17-Mar-2026", "time": "", "endTime": "", "pax": 9, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1055, "client": "Olivia Flood", "email": "", "phone": "", "eventName": "Bridesmaid Lunch", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "14-Mar-2026", "time": "", "endTime": "", "pax": 8, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1056, "client": "Mari Gonzalez", "email": "", "phone": "", "eventName": "Baby Shower Lunch", "type": "Buyout", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "14-Mar-2026", "time": "", "endTime": "", "pax": 40, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1057, "client": "Irma Alvares", "email": "", "phone": "", "eventName": "Birthday Dinner", "type": "Prix Fixe", "venue": "Fum", "status": "Completed", "lead": "", "date": "14-Mar-2026", "time": "", "endTime": "", "pax": 12, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1058, "client": "Lindsay Lewis", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Prix Fixe", "venue": "Fum", "status": "Lost", "lead": "", "date": "14-Mar-2026", "time": "", "endTime": "", "pax": 9, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1059, "client": "Katie Smith", "email": "", "phone": "", "eventName": "Birthday Dinner", "type": "Prix Fixe", "venue": "Fum", "status": "Lost", "lead": "", "date": "13-Mar-2026", "time": "", "endTime": "", "pax": 10, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1060, "client": "Ed Cerulo", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "13-Mar-2026", "time": "", "endTime": "", "pax": 7, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1061, "client": "Judd", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Prix Fixe", "venue": "Los Felix", "status": "Completed", "lead": "", "date": "12-Mar-2026", "time": "", "endTime": "", "pax": 20, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1062, "client": "Matt Jackson", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "10-Mar-2026", "time": "", "endTime": "", "pax": 9, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1063, "client": "Andrew Karam", "email": "", "phone": "", "eventName": "Dinner", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Responded", "lead": "", "date": "8-Mar-2026", "time": "", "endTime": "", "pax": 12, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1064, "client": "Joshua Da Costa Gomez", "email": "", "phone": "", "eventName": "Birthday Dinner", "type": "Catering", "venue": "Tacos Maria", "status": "Responded", "lead": "", "date": "7-Mar-2026", "time": "", "endTime": "", "pax": 60, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1065, "client": "Ashlee Thomas", "email": "", "phone": "", "eventName": "Birthday Dinner", "type": "Prix Fixe", "venue": "Fum", "status": "Lost", "lead": "", "date": "7-Mar-2026", "time": "", "endTime": "", "pax": 11, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1066, "client": "Rodney Kazemi", "email": "", "phone": "", "eventName": "Buyout", "type": "Buyout", "venue": "Rabbit Ears", "status": "Responded", "lead": "", "date": "7-Mar-2026", "time": "", "endTime": "", "pax": 50, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1067, "client": "Christopher Lin", "email": "", "phone": "", "eventName": "Brunch", "type": "Prix Fixe", "venue": "Los Felix", "status": "Lost", "lead": "", "date": "7-Mar-2026", "time": "", "endTime": "", "pax": 13, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1068, "client": "Mike Furby", "email": "", "phone": "", "eventName": "Dinner", "type": "Prix Fixe", "venue": "Rabbit Ears", "status": "Lost", "lead": "", "date": "6-Mar-2026", "time": "", "endTime": "", "pax": 16, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1069, "client": "Farah El Behadli", "email": "", "phone": "", "eventName": "Dinner", "type": "Prix Fixe", "venue": "Rabbit Ears", "status": "Lost", "lead": "", "date": "4-Mar-2026", "time": "", "endTime": "", "pax": 10, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1070, "client": "Athena Ascione", "email": "", "phone": "", "eventName": "Corporate Dinner", "type": "Buyout", "venue": "Krus Kitchen", "status": "Lost", "lead": "", "date": "4-Mar-2026", "time": "", "endTime": "", "pax": 20, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1071, "client": "Sandra", "email": "", "phone": "", "eventName": "Lunch", "type": "Catering", "venue": "Off Site", "status": "Lost", "lead": "", "date": "2-Mar-2026", "time": "", "endTime": "", "pax": 30, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1072, "client": "Greg Rios", "email": "", "phone": "", "eventName": "Brunch", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "28-Feb-2026", "time": "", "endTime": "", "pax": 15, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1073, "client": "Daniela Norena", "email": "", "phone": "", "eventName": "Dinner", "type": "Prix Fixe", "venue": "Fum", "status": "Lost", "lead": "", "date": "28-Feb-2026", "time": "", "endTime": "", "pax": 10, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1074, "client": "Lydia McVeigh", "email": "", "phone": "", "eventName": "Dinner", "type": "Prix Fixe", "venue": "Los Felix", "status": "Completed", "lead": "", "date": "27-Feb-2026", "time": "", "endTime": "", "pax": 15, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1075, "client": "Brendan Flynn 'Consilio'", "email": "", "phone": "", "eventName": "Corporate Dinner", "type": "Buyout", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "26-Feb-2026", "time": "", "endTime": "", "pax": 24, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1076, "client": "Ilan Belehssen", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Prix Fixe", "venue": "Fum", "status": "Completed", "lead": "", "date": "25-Feb-2026", "time": "", "endTime": "", "pax": 10, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1077, "client": "Alicia Miller", "email": "", "phone": "", "eventName": "Corporate Dinner", "type": "Buyout", "venue": "Krus Kitchen", "status": "Lost", "lead": "", "date": "24-Feb-2026", "time": "", "endTime": "", "pax": 20, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1078, "client": "Corey Ruzicano", "email": "", "phone": "", "eventName": "Corporate Dinner", "type": "Prix Fixe", "venue": "Los Felix", "status": "Completed", "lead": "", "date": "24-Feb-2026", "time": "", "endTime": "", "pax": 21, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1079, "client": "Jacq Curtis", "email": "", "phone": "", "eventName": "Birthday Drinks", "type": "Buyout", "venue": "Rabbit Ears", "status": "Lost", "lead": "", "date": "21-Feb-2026", "time": "", "endTime": "", "pax": 25, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1080, "client": "Tyler Lanier", "email": "", "phone": "", "eventName": "BEO Dinner", "type": "Prix Fixe", "venue": "Rabbit Ears", "status": "Lost", "lead": "", "date": "20-Feb-2026", "time": "", "endTime": "", "pax": 9, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1081, "client": "Alexandra Garcia", "email": "", "phone": "", "eventName": "Bridal", "type": "Buyout", "venue": "Krus Kitchen", "status": "Lost", "lead": "", "date": "20-Feb-2026", "time": "", "endTime": "", "pax": 50, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1082, "client": "Tony Fine", "email": "", "phone": "", "eventName": "Birthday Dinner", "type": "Catering", "venue": "Tacos Maria", "status": "Lost", "lead": "", "date": "13-Feb-2026", "time": "", "endTime": "", "pax": 65, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1083, "client": "Angela Webber", "email": "", "phone": "", "eventName": "Corporate Dinner", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Lost", "lead": "", "date": "10-Feb-2026", "time": "", "endTime": "", "pax": 10, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1084, "client": "Lacy Hatton", "email": "", "phone": "", "eventName": "Bridal", "type": "Buyout", "venue": "Krus Kitchen", "status": "Lost", "lead": "", "date": "8-Feb-2026", "time": "", "endTime": "", "pax": 25, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1085, "client": "Allison Bouis", "email": "", "phone": "", "eventName": "Influencer Dinner", "type": "Buyout", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "4-Feb-2026", "time": "", "endTime": "", "pax": 25, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1086, "client": "Michael Berretta", "email": "", "phone": "", "eventName": "Engagement Reception", "type": "Buyout", "venue": "Rabbit Ears", "status": "Completed", "lead": "", "date": "31-Jan-2026", "time": "", "endTime": "", "pax": 85, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1087, "client": "Morgan Harbin", "email": "", "phone": "", "eventName": "Wedding Dinner", "type": "Buyout", "venue": "Fum", "status": "Lost", "lead": "", "date": "30-Jan-2026", "time": "", "endTime": "", "pax": 75, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1088, "client": "Asher Siles", "email": "", "phone": "", "eventName": "Preview", "type": "Prix Fixe", "venue": "Rabbit Ears", "status": "Completed", "lead": "", "date": "30-Jan-2026", "time": "", "endTime": "", "pax": 15, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1089, "client": "Keith Mack", "email": "", "phone": "", "eventName": "Corporate Reception", "type": "Buyout", "venue": "Rabbit Ears", "status": "Completed", "lead": "", "date": "29-Jan-2026", "time": "", "endTime": "", "pax": 125, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1090, "client": "Michael Ludwig/Brooke", "email": "", "phone": "", "eventName": "Corporate Dinner", "type": "Buyout", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "28-Jan-2026", "time": "", "endTime": "", "pax": 25, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1091, "client": "Victor Marchesi", "email": "", "phone": "", "eventName": "Corporate Dinner", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Lost", "lead": "", "date": "27-Jan-2026", "time": "", "endTime": "", "pax": 16, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1092, "client": "Heidi Gluck", "email": "", "phone": "", "eventName": "Corporate Dinner", "type": "Prix Fixe", "venue": "Los Felix", "status": "Lost", "lead": "", "date": "25-Jan-2026", "time": "", "endTime": "", "pax": 8, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1093, "client": "Denise Da Costa Gomez", "email": "", "phone": "", "eventName": "Birthday Brunch", "type": "Prix Fixe", "venue": "Los Felix", "status": "Completed", "lead": "", "date": "25-Jan-2026", "time": "", "endTime": "", "pax": 9, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1094, "client": "Robin Anderson", "email": "", "phone": "", "eventName": "Wedding Reception", "type": "Buyout", "venue": "Krus Kitchen", "status": "Lost", "lead": "", "date": "24-Jan-2026", "time": "", "endTime": "", "pax": 30, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1095, "client": "Mina L", "email": "", "phone": "", "eventName": "Birthday Dinner", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Lost", "lead": "", "date": "24-Jan-2026", "time": "", "endTime": "", "pax": 8, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1096, "client": "Simone Bodecker", "email": "", "phone": "", "eventName": "Private Reception", "type": "Buyout", "venue": "Krus Kitchen", "status": "Lost", "lead": "", "date": "24-Jan-2026", "time": "", "endTime": "", "pax": 50, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1097, "client": "Violetta Rotman", "email": "", "phone": "", "eventName": "Birthday Dinner", "type": "Buyout", "venue": "Krus Kitchen", "status": "Lost", "lead": "", "date": "24-Jan-2026", "time": "", "endTime": "", "pax": 30, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1098, "client": "Alex Horn", "email": "", "phone": "", "eventName": "Birthday Dinner", "type": "Catering", "venue": "Tacos Maria", "status": "Completed", "lead": "", "date": "22-Jan-2026", "time": "", "endTime": "", "pax": 14, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1099, "client": "Arnelle Baptista", "email": "", "phone": "", "eventName": "Board Dinner", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Lost", "lead": "", "date": "21-Jan-2026", "time": "", "endTime": "", "pax": 13, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1100, "client": "Madlyn Friedenfeld", "email": "", "phone": "", "eventName": "Dinner", "type": "Prix Fixe", "venue": "Los Felix", "status": "Lost", "lead": "", "date": "16-Jan-2026", "time": "", "endTime": "", "pax": 8, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1101, "client": "Naif Abboud", "email": "", "phone": "", "eventName": "Engagement Party", "type": "Catering", "venue": "Off Site", "status": "Lost", "lead": "", "date": "16-Jan-2026", "time": "", "endTime": "", "pax": 140, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1102, "client": "Lara Pessoa", "email": "", "phone": "", "eventName": "Reception", "type": "Catering", "venue": "Off Site", "status": "Lost", "lead": "", "date": "15-Jan-2026", "time": "", "endTime": "", "pax": 80, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1103, "client": "Emily 'Fresh Paint'", "email": "", "phone": "", "eventName": "Corporate Dinner", "type": "Prix Fixe", "venue": "Los Felix", "status": "Completed", "lead": "", "date": "13-Jan-2026", "time": "", "endTime": "", "pax": 14, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1104, "client": "Allison Campos 'Cyera'", "email": "", "phone": "", "eventName": "Corporate Dinner", "type": "Buyout", "venue": "Los Felix", "status": "Completed", "lead": "", "date": "9-Jan-2026", "time": "", "endTime": "", "pax": 25, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1105, "client": "Virginia Bombalier 'AMC'", "email": "", "phone": "", "eventName": "Corporate Dinner", "type": "Catering", "venue": "Off Site", "status": "Completed", "lead": "", "date": "7-Jan-2026", "time": "", "endTime": "", "pax": 23, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1106, "client": "Katy Brennan", "email": "", "phone": "", "eventName": "Engagement Dinner", "type": "Prix Fixe", "venue": "Los Felix", "status": "Completed", "lead": "", "date": "20-Dec-2025", "time": "", "endTime": "", "pax": 8, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1107, "client": "Laura Lopez", "email": "", "phone": "", "eventName": "Corporate Dinner", "type": "Buyout", "venue": "Los Felix", "status": "Completed", "lead": "", "date": "19-Dec-2025", "time": "", "endTime": "", "pax": 32, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1108, "client": "Loaidyn Bolado", "email": "", "phone": "", "eventName": "Corporate Lunch", "type": "Buyout", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "17-Dec-2025", "time": "", "endTime": "", "pax": 30, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1109, "client": "Marcus Sanford 'Open Date'", "email": "", "phone": "", "eventName": "Corporate Reception", "type": "Prix Fixe", "venue": "Rabbit Ears", "status": "Completed", "lead": "", "date": "16-Dec-2025", "time": "", "endTime": "", "pax": 20, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1110, "client": "Laercio", "email": "", "phone": "", "eventName": "Personal", "type": "Buyout", "venue": "Krus Kitchen", "status": "Lost", "lead": "", "date": "12-Dec-2025", "time": "", "endTime": "", "pax": 20, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1111, "client": "Michelle Gaitan", "email": "", "phone": "", "eventName": "Personal", "type": "Prix Fixe", "venue": "Los Felix", "status": "Lost", "lead": "", "date": "11-Dec-2025", "time": "", "endTime": "", "pax": 8, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1112, "client": "Elizabeth Sutherland", "email": "", "phone": "", "eventName": "Personal", "type": "Buyout", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "10-Dec-2025", "time": "", "endTime": "", "pax": 24, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1113, "client": "Amanda Brown 'AMC'", "email": "", "phone": "", "eventName": "Corporate", "type": "Catering", "venue": "Off Site", "status": "Completed", "lead": "", "date": "9-Dec-2025", "time": "", "endTime": "", "pax": 70, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1114, "client": "Amanda Brown 'AMC'", "email": "", "phone": "", "eventName": "Corporate", "type": "Catering", "venue": "Off Site", "status": "Completed", "lead": "", "date": "8-Dec-2025", "time": "", "endTime": "", "pax": 30, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1115, "client": "Luciano Madonia", "email": "", "phone": "", "eventName": "Corporate", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Lost", "lead": "", "date": "8-Dec-2025", "time": "", "endTime": "", "pax": 16, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1116, "client": "Kayla Lyons", "email": "", "phone": "", "eventName": "Corporate", "type": "Catering", "venue": "Off Site", "status": "Completed", "lead": "", "date": "6-Dec-2025", "time": "", "endTime": "", "pax": 30, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1117, "client": "Carrie Balsamides", "email": "", "phone": "", "eventName": "Buyout Dinner", "type": "Buyout", "venue": "Fum", "status": "Lost", "lead": "", "date": "4-Dec-2025", "time": "", "endTime": "", "pax": 85, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1118, "client": "Simon Zinevich", "email": "", "phone": "", "eventName": "Corporate", "type": "Catering", "venue": "Off Site", "status": "Completed", "lead": "", "date": "4-Dec-2025", "time": "", "endTime": "", "pax": 16, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1119, "client": "Saif Hamideh", "email": "", "phone": "", "eventName": "Corporate", "type": "Catering", "venue": "Off Site", "status": "Lost", "lead": "", "date": "3-Dec-2025", "time": "", "endTime": "", "pax": 200, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1120, "client": "UBS", "email": "", "phone": "", "eventName": "Corporate", "type": "Catering", "venue": "Off Site", "status": "Completed", "lead": "", "date": "3-Dec-2025", "time": "", "endTime": "", "pax": 100, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1121, "client": "Michael Papadeas", "email": "", "phone": "", "eventName": "Corporate", "type": "Catering", "venue": "Off Site", "status": "Completed", "lead": "", "date": "3-Dec-2025", "time": "", "endTime": "", "pax": 60, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1122, "client": "Rebeca Park", "email": "", "phone": "", "eventName": "Corporate", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "1-Dec-2025", "time": "", "endTime": "", "pax": 10, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1123, "client": "Luis Marin", "email": "", "phone": "", "eventName": "Personal", "type": "Prix Fixe", "venue": "Los Felix", "status": "Lost", "lead": "", "date": "26-Nov-2025", "time": "", "endTime": "", "pax": 14, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1124, "client": "Harley Mayoff", "email": "", "phone": "", "eventName": "Corporate", "type": "Catering", "venue": "Off Site", "status": "Completed", "lead": "", "date": "25-Nov-2025", "time": "", "endTime": "", "pax": 9, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1125, "client": "Jennifer Gomez Martinez", "email": "", "phone": "", "eventName": "Birthday", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Lost", "lead": "", "date": "22-Nov-2025", "time": "", "endTime": "", "pax": 8, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": true, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1126, "client": "Cindy Gonzalez", "email": "", "phone": "", "eventName": "Fundraiser", "type": "Buyout", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "20-Nov-2025", "time": "", "endTime": "", "pax": 50, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1127, "client": "Malori Morris", "email": "", "phone": "", "eventName": "Cocktail Reception", "type": "Buyout", "venue": "Fum", "status": "Completed", "lead": "", "date": "19-Nov-2025", "time": "", "endTime": "", "pax": 100, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1128, "client": "Allen Morris", "email": "", "phone": "", "eventName": "Corporate", "type": "Prix Fixe", "venue": "Rabbit Ears", "status": "Completed", "lead": "", "date": "11-Nov-2025", "time": "", "endTime": "", "pax": 16, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1129, "client": "Liana Martinez", "email": "", "phone": "", "eventName": "Personal", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "11-Nov-2025", "time": "", "endTime": "", "pax": 13, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1130, "client": "Jason Wachob", "email": "", "phone": "", "eventName": "Corporate", "type": "Prix Fixe", "venue": "Krus Kitchen", "status": "Completed", "lead": "", "date": "11-Nov-2025", "time": "", "endTime": "", "pax": 12, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1131, "client": "Alex Park", "email": "", "phone": "", "eventName": "Corporate", "type": "Prix Fixe", "venue": "Los Felix", "status": "Completed", "lead": "", "date": "5-Nov-2025", "time": "", "endTime": "", "pax": 10, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}, {"id": 1132, "client": "Victoria Fleegle", "email": "", "phone": "", "eventName": "Dinner", "type": "Prix Fixe", "venue": "Los Felix", "status": "Completed", "lead": "", "date": "4-Nov-2025", "time": "", "endTime": "", "pax": 14, "notes": "", "subject": "", "importedAt": "", "fromGmail": false, "autoImport": false, "archived": false, "minSpend": 0, "fbRev": 0, "lfSplit": 0, "krusSplit": 0, "ot": 0, "depDueDate": "", "propSent": false, "calBlocked": false, "depPaid": false, "menuSent": false, "rosReady": false}];
+var events = JSON.parse(localStorage.getItem("gfc_v5_events")||"null");
+if(!events || events.length === 0) { events = SEED_DATA.slice(); }
+var checklists = JSON.parse(localStorage.getItem("gfc_v5_ck")||"{}");
+var knownRows = JSON.parse(localStorage.getItem("gfc_v5_rows")||"[]");
+var currentEvent = null;
+var currentVenueFilter = null;
+var currentStatusFilter = "all";
+
+function save(){
+  localStorage.setItem("gfc_v5_events",JSON.stringify(events));
+  localStorage.setItem("gfc_v5_ck",JSON.stringify(checklists));
+  localStorage.setItem("gfc_v5_rows",JSON.stringify(knownRows));
+}
+
+// ── SYNC ─────────────────────────────────────────────────────────────────────
+function syncNow(){
+  setSyncState("syncing","Syncing...");
+  fetch(CSV_URL)
+    .then(function(r){return r.text();})
+    .then(function(t){processCSV(t);})
+    .catch(function(){setSyncState("err","Sync failed");});
+}
+
+function processCSV(csv){
+  var lines=csv.split("\n").filter(function(l){return l.trim();});
+  if(lines.length<2){setSyncState("ok","Connected · No new data");return;}
+  var added=0;
+  for(var i=1;i<lines.length;i++){
+    var c=parseCSV(lines[i]);
+    var date=c[0]||""; var name=(c[1]||"").trim(); var email=(c[2]||"").trim();
+    var phone=(c[3]||"").trim(); var evtDate=(c[4]||"").trim(); var startT=(c[5]||"").trim();
+    var endT=(c[6]||"").trim(); var pax=parseInt(c[7])||0; var nature=(c[8]||"General Inquiry").trim();
+    var venue=normVenue(c[9]||""); var subj=(c[10]||"").trim(); var body=(c[11]||"").trim();
+    if(!name&&!email) continue;
+    var key=(email||name)+"|"+subj;
+    if(knownRows.indexOf(key)>-1) continue;
+    knownRows.push(key);
+    events.unshift({
+      id:Date.now()+i, client:name||"Unknown", email:email, phone:phone,
+      eventName:nature, type:nature, venue:venue, status:"New Inquiry",
+      lead:"", date:evtDate, time:startT, endTime:endT, pax:pax,
+      notes:body.substring(0,500), subject:subj, importedAt:date,
+      fromGmail:true, autoImport:true,
+      minSpend:0, fbRev:0, lfSplit:0, krusSplit:0, ot:0, depDueDate:"",
+      propSent:false, calBlocked:false, depPaid:false, menuSent:false, rosReady:false,
+      archived:false
+    });
+    added++;
+  }
+  save();
+  if(added>0){
+    var b=document.getElementById("new-banner");
+    b.classList.remove("hidden");
+    document.getElementById("new-banner-text").textContent=added+" new inquir"+(added===1?"y":"ies")+" from Gmail!";
+    toast(added+" inquir"+(added===1?"y":"ies")+" auto-imported!");
+  }
+  updateCounts();
+  renderCurrentView();
+  var t=new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
+  setSyncState("ok","Synced "+t);
+}
+
+function normVenue(raw){
+  var v=(raw||"").toLowerCase();
+  if(v.indexOf("felix")>-1) return "Los Felix";
+  if(v.indexOf("krus")>-1||v.indexOf("krüs")>-1) return "Krus Kitchen";
+  if(v.indexOf("fum")>-1||v.indexOf("füm")>-1) return "Fum";
+  if(v.indexOf("rabbit")>-1) return "Rabbit Ears";
+  if(v.indexOf("zey")>-1) return "ZeyZey";
+  if(v.indexOf("tacos")>-1||v.indexOf("maria")>-1) return "Tacos Maria";
+  return "Unknown";
+}
+
+function parseCSV(line){
+  var r=[],c="",q=false;
+  for(var i=0;i<line.length;i++){
+    var ch=line[i];
+    if(ch==='"'){if(q&&line[i+1]==='"'){c+='"';i++;}else{q=!q;}}
+    else if(ch===','&&!q){r.push(c);c="";}
+    else c+=ch;
+  }
+  r.push(c);
+  return r;
+}
+
+function setSyncState(state,msg){
+  var p=document.getElementById("syncPip");
+  p.className="sync-pip"+(state==="syncing"?" syncing":state==="err"?" err":"");
+  document.getElementById("syncLabel").textContent=msg;
+}
+
+function startSync(){
+  syncNow();
+  if(syncTimer)clearInterval(syncTimer);
+  syncTimer=setInterval(syncNow,SYNC_MS);
+}
+
+// ── COUNTS ───────────────────────────────────────────────────────────────────
+function updateCounts(){
+  var active=events.filter(function(e){return !e.archived;});
+  document.getElementById("inboxBadge").textContent=active.filter(function(e){return e.status==="New Inquiry";}).length;
+  Object.keys(VENUES).forEach(function(v){
+    var key="cnt-"+v.toLowerCase().replace(/\s/g,"-");
+    var el=document.getElementById(key);
+    if(!el){
+      var map={"Krus Kitchen":"cnt-krus","Los Felix":"cnt-lf","ZeyZey":"cnt-zz","Fum":"cnt-fum","Rabbit Ears":"cnt-re","Tacos Maria":"cnt-tm"};
+      el=document.getElementById(map[v]);
+    }
+    if(el) el.textContent=active.filter(function(e){return e.venue===v&&e.status!=="Completed"&&e.status!=="Lost"&&e.status!=="No Response";}).length;
+  });
+}
+
+// ── VIEWS ────────────────────────────────────────────────────────────────────
+var currentViewId = "dashboard";
+function showView(v,el){
+  currentViewId=v; currentVenueFilter=null;
+  document.querySelectorAll(".view").forEach(function(x){x.classList.remove("active");});
+  document.querySelectorAll(".nav-btn").forEach(function(x){x.classList.remove("active");});
+  document.getElementById("view-"+v).classList.add("active");
+  if(el) el.classList.add("active");
+  var titles={dashboard:["Dashboard","All venues · Auto-syncing"],revenue:["Revenue","Monthly F&B by venue"],pipeline:["Pipeline","All stages"],inbox:["Email Inbox","Auto-imported from Gmail"],all:["All Events","Full tracker view"],archive:["Archive","Lost / No response"],sop:["SOPs","Standard operating procedures"],settings:["Settings","Configuration"]};
+  var t=titles[v]||[v,""];
+  document.getElementById("pageTitle").textContent=t[0];
+  document.getElementById("pageSub").textContent=t[1];
+  renderView(v);
+}
+
+function showVenue(v,el){
+  currentVenueFilter=v; currentViewId="venue";
+  document.querySelectorAll(".view").forEach(function(x){x.classList.remove("active");});
+  document.querySelectorAll(".nav-btn").forEach(function(x){x.classList.remove("active");});
+  document.getElementById("view-venue").classList.add("active");
+  if(el) el.classList.add("active");
+  var vl=VENUES[v]?VENUES[v].label:v;
+  document.getElementById("pageTitle").textContent=vl;
+  document.getElementById("pageSub").textContent="Events for this venue";
+  renderVenueView(v);
+}
+
+function renderCurrentView(){
+  if(currentVenueFilter) renderVenueView(currentVenueFilter);
+  else renderView(currentViewId);
+}
+
+function renderView(v){
+  if(v==="dashboard") renderDashboard();
+  else if(v==="revenue") renderRevenue();
+  else if(v==="pipeline") renderPipeline();
+  else if(v==="inbox") renderInbox();
+  else if(v==="all") renderAll();
+  else if(v==="archive") renderArchive();
+  else if(v==="sop") renderSOP();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function renderDashboard(){
+  var active=events.filter(function(e){return !e.archived;});
+  var newOnes=active.filter(function(e){return e.status==="New Inquiry";});
+  var confirmed=active.filter(function(e){return e.status==="Deposit Received"||e.status==="Confirmed";});
+  var completed=active.filter(function(e){return e.status==="Completed";});
+  var rev=completed.reduce(function(s,e){return s+(e.fbRev||0);},0);
+  document.getElementById("kpi-new").textContent=newOnes.length;
+  document.getElementById("kpi-active").textContent=active.filter(function(e){return e.status!=="Completed"&&e.status!=="Lost"&&e.status!=="No Response";}).length;
+  document.getElementById("kpi-confirmed").textContent=confirmed.length;
+  document.getElementById("kpi-rev").textContent="$"+rev.toLocaleString();
+  document.getElementById("kpi-completed").textContent=completed.length;
+
+  document.getElementById("dash-new").innerHTML=newOnes.slice(0,4).map(function(e){
+    return "<div style='background:var(--paper);border:1px solid var(--mist);border-radius:9px;padding:11px 13px;margin-bottom:8px;cursor:pointer;transition:all 0.12s;' onmouseover='this.style.borderColor=\"var(--gold)\"' onmouseout='this.style.borderColor=\"var(--mist)\"' onclick='openEvent("+e.id+")'>"
+      +"<div style='font-weight:500;font-size:13px;color:var(--ink);margin-bottom:2px;'>"+e.client+(e.autoImport?"<span class='auto-tag'>AUTO</span>":"<span class='new-tag'>NEW</span>")+"</div>"
+      +"<div style='font-size:11px;color:var(--ink3);margin-bottom:5px;'>"+e.type+(e.pax>0?" · "+e.pax+" guests":"")+"</div>"
+      +"<div style='display:flex;align-items:center;gap:8px;'>"
+      +"<span style='background:"+vColor(e.venue)+"22;color:"+vColor(e.venue)+";padding:2px 7px;border-radius:8px;font-size:10px;font-weight:500;'>"+vLabel(e.venue)+"</span>"
+      +(e.importedAt?"<span style='font-size:10px;color:var(--ink3);'>📧 "+e.importedAt+"</span>":"")
+      +"</div></div>";
+  }).join("")||"<div class='empty-msg'>No new inquiries</div>";
+
+  var upcoming=events.filter(function(e){return !e.archived&&["Deposit Received","Confirmed","Contract Signed"].indexOf(e.status)>-1;}).slice(0,4);
+  document.getElementById("dash-upcoming").innerHTML=upcoming.map(function(e){
+    return "<div style='background:var(--paper);border:1px solid var(--mist);border-radius:9px;padding:11px 13px;margin-bottom:8px;cursor:pointer;transition:all 0.12s;' onmouseover='this.style.borderColor=\"var(--gold)\"' onmouseout='this.style.borderColor=\"var(--mist)\"' onclick='openEvent("+e.id+")'>"
+      +"<div style='font-weight:500;font-size:13px;color:var(--ink);margin-bottom:2px;'>"+e.client+"</div>"
+      +"<div style='font-size:11px;color:var(--ink3);margin-bottom:5px;'>"+e.type+" · "+vLabel(e.venue)+"</div>"
+      +"<div style='display:flex;align-items:center;gap:8px;'>"
+      +"<span class='status-chip "+statusClass(e.status)+"'>"+e.status+"</span>"
+      +(e.date?"<span style='font-size:10px;color:var(--ink3);'>📅 "+e.date+"</span>":"")
+      +"</div></div>";
+  }).join("")||"<div class='empty-msg'>No upcoming events</div>";
+}
+
+// ── REVENUE ──────────────────────────────────────────────────────────────────
+function renderRevenue(){
+  var completed=events.filter(function(e){return e.status==="Completed"&&!e.archived;});
+  // By venue
+  var byVenue={};
+  Object.keys(VENUES).forEach(function(v){byVenue[v]=0;});
+  completed.forEach(function(e){if(byVenue[e.venue]!==undefined)byVenue[e.venue]+=(e.fbRev||0);});
+  document.getElementById("rev-by-venue").innerHTML=Object.keys(VENUES).map(function(v){
+    var amt=byVenue[v]||0;
+    return "<div class='rev-row'><div class='rev-venue'><div class='rev-dot' style='background:"+VENUES[v].color+"'></div>"+VENUES[v].label+"</div><div class='rev-amount "+(amt>0?"positive":"")+"'>$"+amt.toLocaleString()+"</div></div>";
+  }).join("")+"<div class='rev-row' style='font-weight:500;'><div>TOTAL</div><div class='rev-amount positive'>$"+Object.values(byVenue).reduce(function(a,b){return a+b;},0).toLocaleString()+"</div></div>";
+
+  // By coordinator
+  var byCoord={};
+  COORDINATORS.forEach(function(c){byCoord[c]={count:0,rev:0};});
+  completed.forEach(function(e){if(e.lead&&byCoord[e.lead]){byCoord[e.lead].count++;byCoord[e.lead].rev+=(e.fbRev||0);}});
+  document.getElementById("coord-workload").innerHTML=COORDINATORS.map(function(c){
+    var s=byCoord[c];
+    return "<div class='coord-row'><div class='coord-name'>"+c+"</div><div class='coord-stats'><div class='coord-stat'><div class='coord-stat-val'>"+s.count+"</div><div class='coord-stat-label'>Events</div></div><div class='coord-stat'><div class='coord-stat-val'>$"+s.rev.toLocaleString()+"</div><div class='coord-stat-label'>Revenue</div></div></div></div>";
+  }).join("");
+
+  document.getElementById("rev-table").innerHTML=completed.length===0
+    ?"<tr><td colspan='7' style='text-align:center;padding:24px;color:var(--ink3);'>No completed events yet</td></tr>"
+    :completed.map(function(e){
+      return "<tr class='event-row' onclick='openEvent("+e.id+")'><td>"+e.date+"</td><td><span class='venue-chip' style='background:"+vColor(e.venue)+"22;color:"+vColor(e.venue)+"'>"+vLabel(e.venue)+"</span></td><td>"+e.client+"</td><td>"+e.eventName+"</td><td>"+e.pax+"</td><td style='font-family:\"Cormorant Garamond\",serif;font-size:14px;color:var(--moss);'>$"+(e.fbRev||0).toLocaleString()+"</td><td>"+(e.lead||"—")+"</td></tr>";
+    }).join("");
+}
+
+// ── PIPELINE ─────────────────────────────────────────────────────────────────
+function renderPipeline(){
+  var cols=document.getElementById("pipeline-cols");
+  var colBg={"New Inquiry":"var(--gold3)","Responded":"var(--sky)","Menu Sent":"#D4E8C8","Contract Signed":"#C8DCF0","Deposit Received":"#E8D4F0","Confirmed":"#D4F0D8","Completed":"var(--fog)"};
+  var colTxt={"New Inquiry":"#7A5A10","Responded":"var(--slate)","Menu Sent":"#2A4A1A","Contract Signed":"#1A3050","Deposit Received":"#3A1A50","Confirmed":"#1A4A22","Completed":"var(--ink3)"};
+  cols.innerHTML=PIPELINE_STAGES.map(function(stage){
+    var cards=events.filter(function(e){return e.status===stage&&!e.archived;});
+    return "<div style='min-width:155px;'>"
+      +"<div style='background:"+colBg[stage]+";color:"+colTxt[stage]+";padding:7px 9px;border-radius:7px 7px 0 0;font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;'>"
+      +stage+"<span style='background:rgba(255,255,255,0.4);padding:1px 5px;border-radius:8px;'>"+cards.length+"</span></div>"
+      +cards.map(function(e){
+        return "<div style='background:var(--paper);border:1px solid var(--mist);border-radius:8px;padding:10px;margin-bottom:6px;cursor:pointer;transition:all 0.12s;' onmouseover='this.style.borderColor=\"var(--gold)\";this.style.transform=\"translateY(-1px)\"' onmouseout='this.style.borderColor=\"var(--mist)\";this.style.transform=\"\"' onclick='openEvent("+e.id+")'>"
+          +"<div style='font-size:12px;font-weight:500;color:var(--ink);margin-bottom:2px;'>"+e.client+"</div>"
+          +"<div style='font-size:10px;color:var(--ink3);margin-bottom:5px;'>"+e.type+"</div>"
+          +"<div style='background:"+vColor(e.venue)+"22;color:"+vColor(e.venue)+";padding:2px 6px;border-radius:7px;font-size:9px;font-weight:500;display:inline-block;'>"+vLabel(e.venue)+"</div>"
+          +(e.pax>0?"<div style='font-size:9px;color:var(--ink3);margin-top:4px;'>"+e.pax+" guests</div>":"")
+          +"</div>";
+      }).join("")
+      +(cards.length===0?"<div style='text-align:center;padding:16px 8px;font-size:10px;color:var(--ink3);opacity:0.5;'>Empty</div>":"")
+      +"</div>";
+  }).join("");
+}
+
+// ── INBOX ─────────────────────────────────────────────────────────────────────
+function renderInbox(){
+  var fromGmail=events.filter(function(e){return e.fromGmail&&!e.archived;});
+  document.getElementById("inbox-list").innerHTML=fromGmail.length===0
+    ?"<div class='empty-msg'>No auto-imported inquiries yet.<br>They'll appear here when Gmail receives an inquiry.</div>"
+    :fromGmail.map(function(e){
+      var init=e.client.charAt(0).toUpperCase();
+      return "<div class='inbox-card "+(e.status==="New Inquiry"?"unprocessed":"")+"' onclick='openEvent("+e.id+")'>"
+        +"<div class='inbox-avatar' style='background:"+vColor(e.venue)+"22;color:"+vColor(e.venue)+"'>"+init+"</div>"
+        +"<div>"
+          +"<div class='inbox-from'>"+e.client+(e.status==="New Inquiry"?"<span class='new-tag'>NEW</span>":""+(e.autoImport?"<span class='auto-tag'>AUTO</span>":""))+"</div>"
+          +"<div class='inbox-subject'>"+(e.subject||e.type)+"</div>"
+          +(e.notes?"<div class='inbox-preview'>"+e.notes.substring(0,80)+"</div>":"")
+        +"</div>"
+        +"<div class='inbox-meta'>"
+          +"<div class='inbox-time'>"+(e.importedAt||"")+"</div>"
+          +"<div class='inbox-venue' style='color:"+vColor(e.venue)+"'>"+vLabel(e.venue)+"</div>"
+          +"<span class='status-chip "+statusClass(e.status)+"' style='margin-top:4px;display:inline-block;'>"+e.status+"</span>"
+        +"</div>"
+        +"</div>";
+    }).join("");
+}
+
+// ── ALL EVENTS TABLE ──────────────────────────────────────────────────────────
+function renderAll(){
+  // Build filters
+  var sf=document.getElementById("status-filters");
+  var all=["all"].concat(STATUSES);
+  sf.innerHTML=all.map(function(s){
+    return "<button class='filter-btn "+(currentStatusFilter===s?"active":"")+"' onclick='setStatusFilter(\""+s+"\")'>"+( s==="all"?"All":s)+"</button>";
+  }).join("");
+  var filtered=events.filter(function(e){return !e.archived&&(currentStatusFilter==="all"||e.status===currentStatusFilter);});
+  document.getElementById("all-count").textContent="— "+filtered.length+" events";
+  document.getElementById("all-table").innerHTML=filtered.length===0
+    ?"<tr><td colspan='14' style='text-align:center;padding:24px;color:var(--ink3);'>No events</td></tr>"
+    :filtered.map(function(e,i){
+      return "<tr class='event-row' onclick='openEvent("+e.id+")'>"
+        +"<td style='color:var(--ink3);'>"+(i+1)+"</td>"
+        +"<td>"+(e.date||"—")+"</td>"
+        +"<td><span class='venue-chip' style='background:"+vColor(e.venue)+"22;color:"+vColor(e.venue)+"'>"+vLabel(e.venue)+"</span></td>"
+        +"<td>"+e.type+"</td>"
+        +"<td>"+e.eventName+"</td>"
+        +"<td style='font-weight:500;'>"+e.client+"</td>"
+        +"<td>"+(e.pax||"—")+"</td>"
+        +"<td><span class='status-chip "+statusClass(e.status)+"'>"+e.status+"</span></td>"
+        +"<td>"+(e.lead||"—")+"</td>"
+        +"<td>"+(e.minSpend>0?"$"+e.minSpend.toLocaleString():"—")+"</td>"
+        +"<td>"+(e.fbRev>0?"<span style='color:var(--moss);font-family:\"Cormorant Garamond\",serif;font-size:14px;'>$"+e.fbRev.toLocaleString()+"</span>":"—")+"</td>"
+        +"<td>"+(e.propSent?"<span class='check-icon'>✓</span>":"<span class='x-icon'>—</span>")+"</td>"
+        +"<td>"+(e.calBlocked?"<span class='check-icon'>✓</span>":"<span class='x-icon'>—</span>")+"</td>"
+        +"<td>"+(e.depPaid?"<span class='check-icon'>✓</span>":"<span class='x-icon'>—</span>")+"</td>"
+        +"</tr>";
+    }).join("");
+}
+
+function setStatusFilter(s){
+  currentStatusFilter=s;
+  renderAll();
+}
+
+// ── VENUE VIEW ────────────────────────────────────────────────────────────────
+function renderVenueView(v){
+  document.getElementById("venue-table-title").textContent=(VENUES[v]?VENUES[v].label:v)+" — Events";
+  var filtered=events.filter(function(e){return e.venue===v&&!e.archived;});
+  document.getElementById("venue-table").innerHTML=filtered.length===0
+    ?"<tr><td colspan='13' style='text-align:center;padding:24px;color:var(--ink3);'>No events for this venue</td></tr>"
+    :filtered.map(function(e,i){
+      return "<tr class='event-row' onclick='openEvent("+e.id+")'>"
+        +"<td style='color:var(--ink3);'>"+(i+1)+"</td>"
+        +"<td>"+(e.date||"—")+"</td>"
+        +"<td>"+e.type+"</td>"
+        +"<td>"+e.eventName+"</td>"
+        +"<td style='font-weight:500;'>"+e.client+"</td>"
+        +"<td>"+(e.pax||"—")+"</td>"
+        +"<td><span class='status-chip "+statusClass(e.status)+"'>"+e.status+"</span></td>"
+        +"<td>"+(e.lead||"—")+"</td>"
+        +"<td>"+(e.minSpend>0?"$"+e.minSpend.toLocaleString():"—")+"</td>"
+        +"<td>"+(e.fbRev>0?"<span style='color:var(--moss);'>$"+e.fbRev.toLocaleString()+"</span>":"—")+"</td>"
+        +"<td>"+(e.propSent?"<span class='check-icon'>✓</span>":"—")+"</td>"
+        +"<td>"+(e.calBlocked?"<span class='check-icon'>✓</span>":"—")+"</td>"
+        +"<td>"+(e.depPaid?"<span class='check-icon'>✓</span>":"—")+"</td>"
+        +"</tr>";
+    }).join("");
+}
+
+// ── ARCHIVE ───────────────────────────────────────────────────────────────────
+function renderArchive(){
+  var archived=events.filter(function(e){return e.archived;});
+  document.getElementById("archive-table").innerHTML=archived.length===0
+    ?"<tr><td colspan='6' style='text-align:center;padding:24px;color:var(--ink3);'>No archived events</td></tr>"
+    :archived.map(function(e){
+      return "<tr class='event-row' onclick='openEvent("+e.id+")'>"
+        +"<td>"+(e.date||"—")+"</td>"
+        +"<td><span class='venue-chip' style='background:"+vColor(e.venue)+"22;color:"+vColor(e.venue)+"'>"+vLabel(e.venue)+"</span></td>"
+        +"<td style='font-weight:500;'>"+e.client+"</td>"
+        +"<td>"+e.eventName+"</td>"
+        +"<td>"+(e.pax||"—")+"</td>"
+        +"<td><span class='status-chip "+statusClass(e.status)+"'>"+e.status+"</span></td>"
+        +"</tr>";
+    }).join("");
+}
+
+// ── SOP ───────────────────────────────────────────────────────────────────────
+function renderSOP(){
+  document.getElementById("sop-content").innerHTML=SOP_STEPS.map(function(s){
+    return "<div class='sop-card'>"
+      +"<div style='display:flex;align-items:center;gap:9px;margin-bottom:9px;'>"
+      +"<span style='width:24px;height:24px;border-radius:50%;background:var(--moss);color:white;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;'>"+s.n+"</span>"
+      +"<div style='flex:1;font-weight:500;font-size:13px;color:var(--ink);'>"+s.title+"</div>"
+      +"<div style='font-size:10px;color:var(--ink3);'>"+s.time+"</div>"
+      +"</div>"
+      +"<div style='font-size:12px;color:var(--ink2);line-height:1.6;padding-left:33px;'>"+s.desc+"</div>"
+      +"</div>";
+  }).join("");
+}
+
+// ── EVENT MODAL ───────────────────────────────────────────────────────────────
+function openEvent(id){
+  currentEvent=events.find(function(e){return e.id===id;});
+  if(!currentEvent) return;
+  var e=currentEvent;
+  document.getElementById("modal-title").textContent=e.client;
+  document.getElementById("modal-sub").textContent=e.type+" · "+vLabel(e.venue)+(e.date?" · "+e.date:"");
+  // Fill info tab
+  setVal("e-client",e.client); setVal("e-email",e.email); setVal("e-phone",e.phone);
+  setVal("e-eventname",e.eventName); setVal("e-date",e.date); setVal("e-time",e.time);
+  setVal("e-endtime",e.endTime); setVal("e-pax",e.pax); setVal("e-notes",e.notes);
+  setSel("e-type",e.type); setSel("e-venue",e.venue); setSel("e-status",e.status); setSel("e-lead",e.lead||"");
+  // Fill tracker tab
+  setVal("t-minspend",e.minSpend||0); setVal("t-fbrev",e.fbRev||0);
+  setVal("t-lfsplit",e.lfSplit||0); setVal("t-krussplit",e.krusSplit||0);
+  setVal("t-ot",e.ot||0); setVal("t-depduedate",e.depDueDate||"");
+  setCk("t-prop",e.propSent); setCk("t-cal",e.calBlocked); setCk("t-dep",e.depPaid);
+  setCk("t-menu",e.menuSent); setCk("t-ros",e.rosReady);
+  // Menu tab
+  renderMenuTab(e);
+  // Email tab
+  renderEmailTab(e);
+  // Checklist tab
+  var key="e"+id;
+  if(!checklists[key]) checklists[key]={};
+  document.getElementById("checklist-tab-content").innerHTML=CHECKLIST_ITEMS.map(function(item,ci){
+    return "<div class='checklist-item'><div class='ck-box "+(checklists[key][ci]?"done":"")+"' onclick='toggleCk("+ci+",\""+key+"\",this)'>"+(checklists[key][ci]?"✓":"")+"</div><span>"+item+"</span></div>";
+  }).join("");
+  // Reset tabs
+  switchTab("einfo");
+  document.getElementById("eventModal").classList.add("open");
+}
+
+function renderMenuTab(e){
+  var pdfs=PDF_MENUS[e.venue]||[];
+  if(pdfs.length===0){
+    document.getElementById("menu-tab-content").innerHTML="<div class='empty-msg'>⏳ Menu templates for "+vLabel(e.venue)+" coming soon.</div>";
+    return;
+  }
+  document.getElementById("menu-tab-content").innerHTML=
+    "<div style='font-size:12px;color:var(--ink3);margin-bottom:12px;'>Select the menu to send to <strong>"+e.client+"</strong></div>"
+    +"<div class='menu-grid'>"
+    +pdfs.map(function(p){
+      return "<div class='menu-card' id='mc-"+p.meal+"' onclick='pickMenu(\""+p.meal+"\",\""+p.file.replace(/"/g,"&quot;")+"\",\""+p.label.replace(/"/g,"&quot;")+"\")'>"
+        +"<div style='font-size:16px;margin-bottom:6px;'>📄</div>"
+        +"<div class='menu-card-name'>"+p.label+"</div>"
+        +"<div class='menu-card-desc'>"+p.desc+"</div>"
+        +"<div class='menu-card-status'>"+(p.ok?"<span style='color:var(--moss);'>✓ Ready to send</span>":"<span style='color:var(--ink3);'>⏳ Upload needed</span>")+"</div>"
+        +"</div>";
+    }).join("")
+    +"</div>"
+    +"<div style='background:var(--parchment);border:1px solid var(--fog);border-radius:8px;padding:12px;margin-top:12px;font-size:11px;color:var(--ink2);line-height:1.7;'>"
+    +"<strong>How to send:</strong> Select menu above → click <strong>📧 Gmail</strong> below → attach the PDF → send</div>";
+}
+
+function pickMenu(meal,file,label){
+  document.querySelectorAll(".menu-card").forEach(function(c){c.classList.remove("picked");});
+  var card=document.getElementById("mc-"+meal);
+  if(card) card.classList.add("picked");
+  if(currentEvent){
+    currentEvent._selectedPdf={file:file,label:label};
+    renderEmailTab(currentEvent,label,file);
+  }
+}
+
+function renderEmailTab(e,pdfLabel,pdfFile){
+  var pdf=pdfLabel||(e._selectedPdf?e._selectedPdf.label:"Select a menu from the Send Menu tab");
+  var file=pdfFile||(e._selectedPdf?e._selectedPdf.file:"");
+  var fn=e.client.split(" ")[0];
+  var body="Hi "+fn+",\n\nThank you for reaching out to us at Grassfed Culture Hospitality!\n\nPlease find attached our menu for your "+(e.type||"event").toLowerCase()+" at "+vLabel(e.venue)+(e.date?" on "+e.date:"")+(e.pax>0?" for "+e.pax+" guests":"")+". It outlines our packages, beverage options, and pricing.\n\nOnce you've reviewed, don't hesitate to reach out with any questions or to move forward with booking.\n\n📋 Next steps:\n• Review the attached menu and select your preferred package\n• Confirm any special dietary requirements\n• We'll follow up with a contract once you're ready\n\nWarm regards,\nThe Events Team\nGrassfed Culture Hospitality\nevents@grassfedculture.com";
+  document.getElementById("email-tab-content").innerHTML=
+    "<div class='email-draft-box'>"
+    +"<div class='edf-row'><div class='edf-label'>To</div><div class='edf-val'>"+e.client+" &lt;"+e.email+"&gt;</div></div>"
+    +"<div class='edf-row'><div class='edf-label'>Subject</div><div class='edf-val'>"+vLabel(e.venue)+" — Menu & Packages"+(e.date?" · "+e.date:"")+"</div></div>"
+    +"<div class='edf-row'><div class='edf-label'>Attachment</div><div class='edf-val' style='display:flex;align-items:center;gap:6px;'><span>📄</span><span style='color:var(--moss);font-weight:500;'>"+(file||"Select menu first")+"</span></div></div>"
+    +"<div><div class='edf-label' style='margin-bottom:6px;'>Message</div><div class='edf-body'>"+body+"</div></div>"
+    +"</div>"
+    +"<div style='display:flex;gap:8px;margin-top:10px;'><button class='btn btn-ghost btn-sm' onclick='copyEmail()'>Copy text</button><button class='btn btn-moss btn-sm' onclick='openGmail()'>📧 Open in Gmail</button></div>";
+}
+
+function copyEmail(){
+  var body=document.querySelector(".edf-body");
+  if(body) navigator.clipboard.writeText(body.textContent).then(function(){toast("Email copied!");});
+}
+
+function openGmail(){
+  var e=currentEvent;
+  if(!e) return;
+  var subj=encodeURIComponent(vLabel(e.venue)+" — Menu & Packages"+(e.date?" · "+e.date:""));
+  var body=encodeURIComponent("Hi "+e.client.split(" ")[0]+",\n\nThank you for reaching out to Grassfed Culture Hospitality!\n\nPlease find attached our menu for your "+(e.type||"event").toLowerCase()+" at "+vLabel(e.venue)+".\n\nWarm regards,\nThe Events Team\nGrassfed Culture Hospitality");
+  window.open("https://mail.google.com/mail/?view=cm&to="+encodeURIComponent(e.email)+"&su="+subj+"&body="+body,"_blank");
+  toast("Gmail opened — attach the PDF and send!");
+}
+
+function openNew(){
+  currentEvent=null;
+  document.getElementById("modal-title").textContent="New Event";
+  document.getElementById("modal-sub").textContent="Fill in the details";
+  ["e-client","e-email","e-phone","e-eventname","e-date","e-time","e-endtime","e-notes"].forEach(function(id){var el=document.getElementById(id);if(el)el.value="";});
+  document.getElementById("e-pax").value="0";
+  ["t-minspend","t-fbrev","t-lfsplit","t-krussplit","t-ot"].forEach(function(id){document.getElementById(id).value="0";});
+  ["t-prop","t-cal","t-dep","t-menu","t-ros"].forEach(function(id){document.getElementById(id).checked=false;});
+  document.getElementById("menu-tab-content").innerHTML="<div class='empty-msg'>Save the event first, then select the menu.</div>";
+  document.getElementById("email-tab-content").innerHTML="<div class='empty-msg'>Save the event first, then draft the email.</div>";
+  document.getElementById("checklist-tab-content").innerHTML="<div class='empty-msg'>Save the event first to enable the checklist.</div>";
+  switchTab("einfo");
+  document.getElementById("eventModal").classList.add("open");
+}
+
+function saveEvent(){
+  var isNew=!currentEvent;
+  if(isNew) currentEvent={id:Date.now(),fromGmail:false,autoImport:false,archived:false};
+  currentEvent.client=document.getElementById("e-client").value.trim()||"Unknown Client";
+  currentEvent.email=document.getElementById("e-email").value.trim();
+  currentEvent.phone=document.getElementById("e-phone").value.trim();
+  currentEvent.eventName=document.getElementById("e-eventname").value.trim()||currentEvent.client;
+  currentEvent.type=document.getElementById("e-type").value;
+  currentEvent.venue=document.getElementById("e-venue").value;
+  currentEvent.status=document.getElementById("e-status").value;
+  currentEvent.lead=document.getElementById("e-lead").value;
+  currentEvent.date=document.getElementById("e-date").value;
+  currentEvent.time=document.getElementById("e-time").value;
+  currentEvent.endTime=document.getElementById("e-endtime").value;
+  currentEvent.pax=parseInt(document.getElementById("e-pax").value)||0;
+  currentEvent.notes=document.getElementById("e-notes").value.trim();
+  currentEvent.minSpend=parseFloat(document.getElementById("t-minspend").value)||0;
+  currentEvent.fbRev=parseFloat(document.getElementById("t-fbrev").value)||0;
+  currentEvent.lfSplit=parseFloat(document.getElementById("t-lfsplit").value)||0;
+  currentEvent.krusSplit=parseFloat(document.getElementById("t-krussplit").value)||0;
+  currentEvent.ot=parseFloat(document.getElementById("t-ot").value)||0;
+  currentEvent.depDueDate=document.getElementById("t-depduedate").value;
+  currentEvent.propSent=document.getElementById("t-prop").checked;
+  currentEvent.calBlocked=document.getElementById("t-cal").checked;
+  currentEvent.depPaid=document.getElementById("t-dep").checked;
+  currentEvent.menuSent=document.getElementById("t-menu").checked;
+  currentEvent.rosReady=document.getElementById("t-ros").checked;
+  if(isNew) events.unshift(currentEvent);
+  save(); updateCounts(); renderCurrentView();
+  closeModal("eventModal");
+  toast(isNew?"Event created!":"Event saved!");
+}
+
+function deleteEvent(){
+  if(!currentEvent) return;
+  if(!confirm("Delete event for "+currentEvent.client+"?")) return;
+  events=events.filter(function(e){return e.id!==currentEvent.id;});
+  save(); updateCounts(); renderCurrentView();
+  closeModal("eventModal");
+  toast("Event deleted.");
+}
+
+function archiveEvent(){
+  if(!currentEvent) return;
+  currentEvent.archived=true;
+  save(); updateCounts(); renderCurrentView();
+  closeModal("eventModal");
+  toast("Moved to archive.");
+}
+
+function toggleCk(ci,key,el){
+  checklists[key][ci]=!checklists[key][ci];
+  el.classList.toggle("done");
+  el.textContent=checklists[key][ci]?"✓":"";
+  save();
+}
+
+function switchTab(name){
+  document.querySelectorAll(".tab").forEach(function(t){t.classList.remove("active");});
+  document.querySelectorAll(".tab-panel").forEach(function(t){t.classList.remove("active");});
+  var map={einfo:0,etracker:1,emenu:2,eemail:3,echecklist:4};
+  document.querySelectorAll(".tab")[map[name]].classList.add("active");
+  document.getElementById("tab-"+name).classList.add("active");
+  if(name==="emenu"&&currentEvent) renderMenuTab(currentEvent);
+  if(name==="eemail"&&currentEvent) renderEmailTab(currentEvent);
+}
+
+function clearAll(){
+  if(!confirm("Delete ALL events? Cannot be undone.")) return;
+  events=[]; knownRows=[]; save(); updateCounts(); renderCurrentView();
+  toast("All events cleared.");
+}
+
+function saveSettings(){
+  CSV_URL=document.getElementById("s-csv").value.trim();
+  var i=parseInt(document.getElementById("s-interval").value);
+  SYNC_MS=i*1000;
+  if(syncTimer)clearInterval(syncTimer);
+  syncTimer=setInterval(syncNow,SYNC_MS);
+  toast("Settings saved!"); syncNow();
+}
+
+function closeModal(id){document.getElementById(id).classList.remove("open");}
+
+function toast(msg){
+  var t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  setTimeout(function(){t.classList.remove("show");},3000);
+}
+
+function setVal(id,v){var el=document.getElementById(id);if(el)el.value=v||"";}
+function setSel(id,v){var el=document.getElementById(id);if(!el)return;for(var i=0;i<el.options.length;i++){if(el.options[i].value===v||el.options[i].text===v){el.selectedIndex=i;break;}}}
+function setCk(id,v){var el=document.getElementById(id);if(el)el.checked=!!v;}
+function vColor(v){return(VENUES[v]||{}).color||"#888";}
+function vLabel(v){return(VENUES[v]||{}).label||v;}
+function statusClass(s){
+  var m={"New Inquiry":"s-new","Responded":"s-responded","Confirmed":"s-confirmed","Deposit Received":"s-deposit","Contract Signed":"s-contract","Menu Sent":"s-menu","Completed":"s-completed","Lost":"s-lost","No Response":"s-lost"};
+  return m[s]||"s-new";
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+updateCounts();
+renderDashboard();
+startSync();
+</script>
+</body>
+</html>
